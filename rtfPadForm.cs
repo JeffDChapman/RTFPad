@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using PrintPreviewRichTextBox;
@@ -58,6 +55,9 @@ namespace RTFPad
             }
             this.newTab();
             this.rtb_SelectionChanged(this, new EventArgs());
+            this.toolStripCBoxFont.Text = "Calibri";
+            this.toolStripCBoxFontSize.Text = "20";
+            this.Height = 600;
         }
         #endregion
 
@@ -66,29 +66,6 @@ namespace RTFPad
         /* File Exit */
         private void menuFileExit_Click(object sender, EventArgs e)
         {
-            if (this.tabControl.TabCount <= 0) return;
-
-            for (int i = this.tabControl.TabCount; i >= 0; --i)
-            {
-                this.tabControl.SelectedIndex = i;
-                RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
-
-                if (rtb.Text != (string)rtb.Tag)
-                {
-
-                    DialogResult result = MessageBox.Show("Do you wish to save changes to " + this.tabControl.SelectedTab.Text + " ?",
-                                     "RTFPad", MessageBoxButtons.YesNoCancel);
-
-                    if (result == DialogResult.Yes)
-                    {
-                        menuFileSave_Click(sender, e);
-                    }
-                    else if (result == DialogResult.Cancel)
-                    {
-                        return;
-                    }
-                }
-            }
             this.Close();
         }
 
@@ -948,7 +925,7 @@ namespace RTFPad
             if (rtb.TextLength == 0)
             {
                 this.menuEditFind.Enabled = false;
-                this.toolStripFind.Enabled = false;
+                //this.toolStripFind.Enabled = false;
                 this.menuEditFindNext.Enabled = false;
                 this.menuEditReplace.Enabled = false;
                 this.menuEditSelectAll.Enabled = false;
@@ -957,7 +934,7 @@ namespace RTFPad
             else
             {
                 this.menuEditFind.Enabled = true;
-                this.toolStripFind.Enabled = true;
+                //this.toolStripFind.Enabled = true;
                 this.menuEditFindNext.Enabled = true;
                 this.menuEditReplace.Enabled = true;
                 this.menuEditSelectAll.Enabled = true;
@@ -995,7 +972,7 @@ namespace RTFPad
                 if (rtb.TextLength == 0)
                 {
                     this.menuEditFind.Enabled      = false;
-                    this.toolStripFind.Enabled     = false;
+                    //this.toolStripFind.Enabled     = false;
                     this.menuEditFindNext.Enabled  = false;
                     this.menuEditReplace.Enabled   = false;
                     this.menuEditSelectAll.Enabled = false;
@@ -1004,7 +981,7 @@ namespace RTFPad
                 else
                 {
                     this.menuEditFind.Enabled      = true;
-                    this.toolStripFind.Enabled     = true;
+                    //this.toolStripFind.Enabled     = true;
                     this.menuEditFindNext.Enabled  = true;
                     this.menuEditReplace.Enabled   = true;
                     this.menuEditSelectAll.Enabled = true;
@@ -1036,17 +1013,17 @@ namespace RTFPad
                 {
                     this.menuEditClear.Enabled = false;
                     this.menuEditCut.Enabled   = false;
-                    this.toolStripCut.Enabled  = false;
+                    //this.toolStripCut.Enabled  = false;
                     this.menuEditCopy.Enabled  = false;
-                    this.toolStripCopy.Enabled = false;
+                    //this.toolStripCopy.Enabled = false;
                 }
                 else
                 {
                     this.menuEditClear.Enabled = true;
                     this.menuEditCut.Enabled   = true;
-                    this.toolStripCut.Enabled  = true;
+                    //this.toolStripCut.Enabled  = true;
                     this.menuEditCopy.Enabled  = true;
-                    this.toolStripCopy.Enabled = true;
+                    //this.toolStripCopy.Enabled = true;
                 }
                 if (rtb.SelectionFont.Bold) this.toolStripBold.Checked = true;
                 else this.toolStripBold.Checked = false;
@@ -1085,7 +1062,7 @@ namespace RTFPad
                 this.Text = "RTFPad - " + this.tabControl.SelectedTab.Text;
                 this.rtb_SelectionChanged(sender, e);
                 this.menuEditPaste.Enabled          = true;
-                this.toolStripPaste.Enabled         = true;
+                //this.toolStripPaste.Enabled         = true;
                 this.menuFilePrint.Enabled          = true;
                 this.toolStripPrint.Enabled         = true;
                 this.menuFilePrintPreview.Enabled   = true;
@@ -1121,7 +1098,7 @@ namespace RTFPad
             else
             {
                 this.menuEditFind.Enabled           = false;
-                this.toolStripFind.Enabled          = false;
+                //this.toolStripFind.Enabled          = false;
                 this.menuEditFindNext.Enabled       = false;
                 this.menuEditReplace.Enabled        = false;
                 this.menuEditSelectAll.Enabled      = false;
@@ -1131,11 +1108,11 @@ namespace RTFPad
                 this.toolStripRedo.Enabled          = false;
                 this.menuEditClear.Enabled          = false;
                 this.menuEditCut.Enabled            = false;
-                this.toolStripCut.Enabled           = false;
+                //this.toolStripCut.Enabled           = false;
                 this.menuEditCopy.Enabled           = false;
-                this.toolStripCopy.Enabled          = false;
+                //this.toolStripCopy.Enabled          = false;
                 this.menuEditPaste.Enabled          = false;
-                this.toolStripPaste.Enabled         = false;
+                //this.toolStripPaste.Enabled         = false;
                 this.menuFilePrint.Enabled          = false;
                 this.toolStripPrint.Enabled         = false;
                 this.menuFilePrintPreview.Enabled   = false;
@@ -1171,17 +1148,17 @@ namespace RTFPad
         /* Event which watches for the change in form size
          * Used for styling the Tool Strip so it's displayed in two rows when possible
          */
-        private void rtfPadForm_SizeChanged(object sender, EventArgs e)
-        {
-            if (this.WindowState == FormWindowState.Maximized || this.Size.Width > 900 )
-            {
-                toolStripSeparator5.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
-            }
-            else
-            {
-                toolStripSeparator5.Margin = new System.Windows.Forms.Padding(0, 0, 500, 0);
-            }
-        }
+        //private void rtfPadForm_SizeChanged(object sender, EventArgs e)
+        //{
+        //    if (this.WindowState == FormWindowState.Maximized || this.Size.Width > 900 )
+        //    {
+        //        toolStripSeparator5.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
+        //    }
+        //    else
+        //    {
+        //        toolStripSeparator5.Margin = new System.Windows.Forms.Padding(0, 0, 500, 0);
+        //    }
+        //}
         #endregion
 
         #region Tool Strip Mouse Over Events
@@ -1386,5 +1363,33 @@ namespace RTFPad
             this.statusStripInfoLabel.Text = "";
         }
         #endregion
+
+        private void rtfPadForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (this.tabControl.TabCount <= 0) return;
+
+            for (int i = this.tabControl.TabCount; i > 0; --i)
+            {
+                this.tabControl.SelectedIndex = i;
+                RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+
+                if (rtb.Text != (string)rtb.Tag)
+                {
+
+                    DialogResult result = MessageBox.Show("Do you wish to save changes to " + this.tabControl.SelectedTab.Text + " ?",
+                                     "RTFPad", MessageBoxButtons.YesNoCancel);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        menuFileSave_Click(sender, e);
+                    }
+                    else if (result == DialogResult.Cancel)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+            }
+        }
     }
 }
