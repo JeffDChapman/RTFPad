@@ -1,4 +1,5 @@
 RTFPad
 ======
 
-College project i had to do in a week. The code is a mess since i never used C# before
+Original codebase from kusl/RTFPad 
+Changes to toolbar and form.close Events by JeffDChapman
