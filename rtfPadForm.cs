@@ -23,21 +23,24 @@ namespace RTFPad
         #endregion
 
         #region constructor
+        public rtfPadForm(string startdoc)
+        {
+            InitializeComponent();
+            SetupTheForm();
+            int LastSlash = startdoc.LastIndexOf('\\');
+            string FileToOpen = startdoc.Substring(LastSlash + 1);
+            OpenFileNamed(this, null, FileToOpen, startdoc);
+        }
+
         public rtfPadForm()
         {
             InitializeComponent();
-            this.fontList = FontFamily.Families;
-            foreach (FontFamily font in fontList)
-            {
-                this.toolStripCBoxFont.Items.Add(font.Name);
-            }
-            foreach (string color in colorList)
-            {
-                Color boja = Color.FromKnownColor((KnownColor)System.Enum.Parse(typeof(KnownColor), color));
-                if (boja.IsSystemColor == false && boja.Name != Color.Transparent.Name)
-                    this.toolStripFontColor.DropDownItems.Add(color);
-                    
-            }
+            SetupTheForm();
+        }
+
+        private void SetupTheForm()
+        {
+            FontsAndColors();
             foreach (ToolStripDropDownItem entry in this.toolStripFontColor.DropDownItems)
             {
                 entry.BackColor = Color.FromKnownColor((KnownColor)System.Enum.Parse(typeof(KnownColor), entry.Text));
@@ -57,7 +60,23 @@ namespace RTFPad
             this.rtb_SelectionChanged(this, new EventArgs());
             this.toolStripCBoxFont.Text = "Calibri";
             this.toolStripCBoxFontSize.Text = "20";
-            this.Height = 600;
+            this.Height = 750;
+        }
+
+        private void FontsAndColors()
+        {
+            this.fontList = FontFamily.Families;
+            foreach (FontFamily font in fontList)
+            {
+                this.toolStripCBoxFont.Items.Add(font.Name);
+            }
+            foreach (string color in colorList)
+            {
+                Color boja = Color.FromKnownColor((KnownColor)System.Enum.Parse(typeof(KnownColor), color));
+                if (boja.IsSystemColor == false && boja.Name != Color.Transparent.Name)
+                    this.toolStripFontColor.DropDownItems.Add(color);
+
+            }
         }
         #endregion
 
@@ -80,69 +99,78 @@ namespace RTFPad
         {
             if (this.dialogOpen.ShowDialog() == DialogResult.OK)
             {
-                bool exists = false;
-                for (int i = 0; i < this.tabControl.TabCount; i++)
+                string FileToOpen = this.dialogOpen.SafeFileName;
+                string wholeFileName = this.dialogOpen.FileName;
+                OpenFileNamed(sender, e, FileToOpen, wholeFileName);
+            }
+        }
+
+        private void OpenFileNamed(object sender, EventArgs e, string FileToOpen, string wholeFileName)
+        {
+            bool exists = false;
+            for (int i = 0; i < this.tabControl.TabCount; i++)
+            {
+                if (this.tabControl.TabPages[i].Text == FileToOpen)
                 {
-                    if (this.tabControl.TabPages[i].Text == this.dialogOpen.SafeFileName)
-                    {
-                        exists = true;
-                        this.tabControl.SelectedIndex = i;
-                    }
+                    exists = true;
+                    this.tabControl.SelectedIndex = i;
                 }
+            }
 
-                if (exists == false)
+            if (exists == false)
+            {
+                if (this.tabControl.TabCount < MAX_TABS) menuFileNew_Click(sender, e);
+                else
                 {
-                    if (this.tabControl.TabCount < MAX_TABS) menuFileNew_Click(sender, e);
-                    else
+                    DialogResult mBoxResult = MessageBox.Show("Max tab count reached! Do you wish to open the file in the current tab?",
+                                                                "RTFPad", MessageBoxButtons.YesNoCancel);
+                    switch (mBoxResult)
                     {
-                        DialogResult mBoxResult = MessageBox.Show("Max tab count reached! Do you wish to open the file in the current tab?",
-                                                                    "RTFPad", MessageBoxButtons.YesNoCancel);
-                        switch (mBoxResult)
-                        {
-                            case DialogResult.Yes: this.closeTab();
-                                                   this.newTab();
-                                                   break;
-                            case DialogResult.No: MessageBox.Show("Close a tab", "RTFPad", MessageBoxButtons.OK);
-                                                  return; 
-                            case DialogResult.Cancel: return;
-                        }
-
+                        case DialogResult.Yes:
+                            this.closeTab();
+                            this.newTab();
+                            break;
+                        case DialogResult.No:
+                            MessageBox.Show("Close a tab", "RTFPad", MessageBoxButtons.OK);
+                            return;
+                        case DialogResult.Cancel: return;
                     }
-                    RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
 
-                    StreamReader value;
-                    openedFileInTab.TryGetValue(this.tabControl.SelectedTab.Text, out value);
-                    if (value != null)
-                        this.openedFileInTab[this.tabControl.SelectedTab.Text].Close();
-
-                    this.fileTypeInTab.Remove(this.tabControl.SelectedTab.Text);
-                    this.fileNameInTab.Remove(this.tabControl.SelectedTab.Text);
-                    this.openedFileInTab.Remove(this.tabControl.SelectedTab.Text);
-                    this.selectedColorInTab.Remove(this.tabControl.SelectedTab.Text);
-                    this.textToFindInTab.Remove(this.tabControl.SelectedTab.Text);
-                    this.matchCaseInTab.Remove(this.tabControl.SelectedTab.Text);
-
-                    this.tabControl.SelectedTab.Text = this.dialogOpen.SafeFileName;
-                    int fileType = 0;
-                    if (this.dialogOpen.FilterIndex == 1)
-                    {
-                        rtb.LoadFile(this.dialogOpen.FileName, RichTextBoxStreamType.RichText);
-                        fileType = 1;
-                    }
-                    else
-                    {
-                        rtb.LoadFile(this.dialogOpen.FileName, RichTextBoxStreamType.PlainText);
-                        fileType = 2;
-                    }
-                    rtb.Tag = rtb.Text;
-                    this.openedFileInTab[this.tabControl.SelectedTab.Text] = new StreamReader(this.dialogOpen.FileName);
-                    this.tabControl.SelectedTab.Text                        = this.dialogOpen.SafeFileName;
-                    this.fileNameInTab[this.tabControl.SelectedTab.Text]    = this.dialogOpen.FileName;
-                    this.Text                                               = "RTFPad - " + this.tabControl.SelectedTab.Text;
-                    this.fileTypeInTab[this.tabControl.SelectedTab.Text]   = fileType;
-                    this.rtb_SelectionChanged(sender, e);
-                    this.tabControl_SelectedIndexChanged(sender, e);
                 }
+                RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+
+                StreamReader value;
+                openedFileInTab.TryGetValue(this.tabControl.SelectedTab.Text, out value);
+                if (value != null)
+                    this.openedFileInTab[this.tabControl.SelectedTab.Text].Close();
+
+                this.fileTypeInTab.Remove(this.tabControl.SelectedTab.Text);
+                this.fileNameInTab.Remove(this.tabControl.SelectedTab.Text);
+                this.openedFileInTab.Remove(this.tabControl.SelectedTab.Text);
+                this.selectedColorInTab.Remove(this.tabControl.SelectedTab.Text);
+                this.textToFindInTab.Remove(this.tabControl.SelectedTab.Text);
+                this.matchCaseInTab.Remove(this.tabControl.SelectedTab.Text);
+
+                this.tabControl.SelectedTab.Text = FileToOpen;
+                int fileType = 0;
+                if (this.dialogOpen.FilterIndex == 1)
+                {
+                    rtb.LoadFile(wholeFileName, RichTextBoxStreamType.RichText);
+                    fileType = 1;
+                }
+                else
+                {
+                    rtb.LoadFile(wholeFileName, RichTextBoxStreamType.PlainText);
+                    fileType = 2;
+                }
+                rtb.Tag = rtb.Text;
+                this.openedFileInTab[this.tabControl.SelectedTab.Text] = new StreamReader(wholeFileName);
+                this.tabControl.SelectedTab.Text = FileToOpen;
+                this.fileNameInTab[this.tabControl.SelectedTab.Text] = wholeFileName;
+                this.Text = "RTFPad - " + this.tabControl.SelectedTab.Text;
+                this.fileTypeInTab[this.tabControl.SelectedTab.Text] = fileType;
+                this.rtb_SelectionChanged(sender, e);
+                this.tabControl_SelectedIndexChanged(sender, e);
             }
         }
 
@@ -191,6 +219,7 @@ namespace RTFPad
         private void menuFileSave_Click(object sender, EventArgs e)
         {
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+            rtb.Tag = rtb.Text;
             string currentTabKey = this.tabControl.SelectedTab.Text;
             StreamReader value;
             this.openedFileInTab.TryGetValue(currentTabKey, out value);
@@ -1371,11 +1400,10 @@ namespace RTFPad
             for (int i = this.tabControl.TabCount; i > 0; --i)
             {
                 this.tabControl.SelectedIndex = i;
-                RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+                RichTextBox rtb = (RichTextBox)this.tabControl.TabPages[i - 1].Controls[0];
 
-                if (rtb.Text != (string)rtb.Tag)
+                if (rtb.Text != rtb.Tag.ToString())
                 {
-
                     DialogResult result = MessageBox.Show("Do you wish to save changes to " + this.tabControl.SelectedTab.Text + " ?",
                                      "RTFPad", MessageBoxButtons.YesNoCancel);
 

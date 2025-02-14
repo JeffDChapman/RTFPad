@@ -113,7 +113,7 @@ namespace RTFPad
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1258, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(978, 36);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -132,7 +132,7 @@ namespace RTFPad
             this.toolStripSeparator2,
             this.menuFileExit});
             this.menuFile.Name = "menuFile";
-            this.menuFile.Size = new System.Drawing.Size(54, 29);
+            this.menuFile.Size = new System.Drawing.Size(54, 32);
             this.menuFile.Text = "&File";
             this.menuFile.Click += new System.EventHandler(this.menuFile_Click);
             // 
@@ -230,7 +230,7 @@ namespace RTFPad
             this.menuEditFindNext,
             this.menuEditReplace});
             this.menuEdit.Name = "menuEdit";
-            this.menuEdit.Size = new System.Drawing.Size(58, 29);
+            this.menuEdit.Size = new System.Drawing.Size(58, 32);
             this.menuEdit.Text = "&Edit";
             // 
             // menuEditUndo
@@ -328,7 +328,7 @@ namespace RTFPad
             this.menuView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuViewWordWrap});
             this.menuView.Name = "menuView";
-            this.menuView.Size = new System.Drawing.Size(65, 29);
+            this.menuView.Size = new System.Drawing.Size(65, 32);
             this.menuView.Text = "&View";
             // 
             // menuViewWordWrap
@@ -344,7 +344,7 @@ namespace RTFPad
             this.menuFormatFont,
             this.menuFormatColor});
             this.menuFormat.Name = "menuFormat";
-            this.menuFormat.Size = new System.Drawing.Size(85, 29);
+            this.menuFormat.Size = new System.Drawing.Size(85, 32);
             this.menuFormat.Text = "F&ormat";
             // 
             // menuFormatFont
@@ -366,7 +366,7 @@ namespace RTFPad
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aboutRTFPadToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(65, 29);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(65, 32);
             this.helpToolStripMenuItem.Text = "&Help";
             // 
             // aboutRTFPadToolStripMenuItem
@@ -379,7 +379,6 @@ namespace RTFPad
             // toolStrip
             // 
             this.toolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.toolStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripNew,
             this.toolStripOpen,
@@ -399,10 +398,10 @@ namespace RTFPad
             this.toolStripAlignCenter,
             this.toolStripAlignRight,
             this.toolStripBullet});
-            this.toolStrip.Location = new System.Drawing.Point(0, 33);
+            this.toolStrip.Location = new System.Drawing.Point(0, 36);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip.Size = new System.Drawing.Size(1258, 33);
+            this.toolStrip.Size = new System.Drawing.Size(978, 38);
             this.toolStrip.Stretch = true;
             this.toolStrip.TabIndex = 2;
             this.toolStrip.Text = "toolStrip";
@@ -414,7 +413,7 @@ namespace RTFPad
             this.toolStripNew.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripNew.Name = "toolStripNew";
             this.toolStripNew.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripNew.Size = new System.Drawing.Size(34, 28);
+            this.toolStripNew.Size = new System.Drawing.Size(34, 33);
             this.toolStripNew.Text = "New Tab";
             this.toolStripNew.Click += new System.EventHandler(this.toolStripNew_Click);
             this.toolStripNew.MouseEnter += new System.EventHandler(this.toolStripNew_MouseEnter);
@@ -427,7 +426,7 @@ namespace RTFPad
             this.toolStripOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripOpen.Name = "toolStripOpen";
             this.toolStripOpen.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripOpen.Size = new System.Drawing.Size(34, 28);
+            this.toolStripOpen.Size = new System.Drawing.Size(34, 33);
             this.toolStripOpen.Text = "Open File";
             this.toolStripOpen.Click += new System.EventHandler(this.toolStripOpen_Click);
             this.toolStripOpen.MouseEnter += new System.EventHandler(this.toolStripOpen_MouseEnter);
@@ -440,7 +439,7 @@ namespace RTFPad
             this.toolStripSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripSave.Name = "toolStripSave";
             this.toolStripSave.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripSave.Size = new System.Drawing.Size(34, 28);
+            this.toolStripSave.Size = new System.Drawing.Size(34, 33);
             this.toolStripSave.Text = "Save Current Tab";
             this.toolStripSave.Click += new System.EventHandler(this.toolStripSave_Click);
             this.toolStripSave.MouseEnter += new System.EventHandler(this.toolStripSave_MouseEnter);
@@ -453,7 +452,7 @@ namespace RTFPad
             this.toolStripPrint.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripPrint.Name = "toolStripPrint";
             this.toolStripPrint.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripPrint.Size = new System.Drawing.Size(34, 28);
+            this.toolStripPrint.Size = new System.Drawing.Size(34, 33);
             this.toolStripPrint.Text = "Print Current Tab";
             this.toolStripPrint.Click += new System.EventHandler(this.toolStripPrint_Click);
             this.toolStripPrint.MouseEnter += new System.EventHandler(this.toolStripPrint_MouseEnter);
@@ -466,7 +465,7 @@ namespace RTFPad
             this.toolStripPrintPreview.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripPrintPreview.Name = "toolStripPrintPreview";
             this.toolStripPrintPreview.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripPrintPreview.Size = new System.Drawing.Size(34, 28);
+            this.toolStripPrintPreview.Size = new System.Drawing.Size(34, 33);
             this.toolStripPrintPreview.Text = "Print Preview";
             this.toolStripPrintPreview.Click += new System.EventHandler(this.toolStripPrintPreview_Click);
             this.toolStripPrintPreview.MouseEnter += new System.EventHandler(this.toolStripPrintPreview_MouseEnter);
@@ -479,7 +478,7 @@ namespace RTFPad
             this.toolStripUndo.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripUndo.Name = "toolStripUndo";
             this.toolStripUndo.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripUndo.Size = new System.Drawing.Size(34, 28);
+            this.toolStripUndo.Size = new System.Drawing.Size(34, 33);
             this.toolStripUndo.Text = "Undo";
             this.toolStripUndo.Click += new System.EventHandler(this.toolStripUndo_Click);
             this.toolStripUndo.MouseEnter += new System.EventHandler(this.toolStripUndo_MouseEnter);
@@ -492,7 +491,7 @@ namespace RTFPad
             this.toolStripRedo.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripRedo.Name = "toolStripRedo";
             this.toolStripRedo.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripRedo.Size = new System.Drawing.Size(34, 28);
+            this.toolStripRedo.Size = new System.Drawing.Size(34, 33);
             this.toolStripRedo.Text = "Redo";
             this.toolStripRedo.Click += new System.EventHandler(this.toolStripRedo_Click);
             this.toolStripRedo.MouseEnter += new System.EventHandler(this.toolStripRedo_MouseEnter);
@@ -544,7 +543,7 @@ namespace RTFPad
             this.toolStripBold.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripBold.Name = "toolStripBold";
             this.toolStripBold.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripBold.Size = new System.Drawing.Size(34, 28);
+            this.toolStripBold.Size = new System.Drawing.Size(34, 33);
             this.toolStripBold.Text = "Bold";
             this.toolStripBold.Click += new System.EventHandler(this.toolStripBold_Click);
             this.toolStripBold.MouseEnter += new System.EventHandler(this.toolStripBold_MouseEnter);
@@ -557,7 +556,7 @@ namespace RTFPad
             this.toolStripItalic.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripItalic.Name = "toolStripItalic";
             this.toolStripItalic.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripItalic.Size = new System.Drawing.Size(34, 28);
+            this.toolStripItalic.Size = new System.Drawing.Size(34, 33);
             this.toolStripItalic.Text = "Italic";
             this.toolStripItalic.Click += new System.EventHandler(this.toolStripItalic_Click);
             this.toolStripItalic.MouseEnter += new System.EventHandler(this.toolStripItalic_MouseEnter);
@@ -570,7 +569,7 @@ namespace RTFPad
             this.toolStripUnderline.ImageTransparentColor = System.Drawing.Color.White;
             this.toolStripUnderline.Name = "toolStripUnderline";
             this.toolStripUnderline.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripUnderline.Size = new System.Drawing.Size(34, 28);
+            this.toolStripUnderline.Size = new System.Drawing.Size(34, 33);
             this.toolStripUnderline.Text = "Underline";
             this.toolStripUnderline.Click += new System.EventHandler(this.toolStripUnderline_Click);
             this.toolStripUnderline.MouseEnter += new System.EventHandler(this.toolStripUnderline_MouseEnter);
@@ -583,7 +582,7 @@ namespace RTFPad
             this.toolStripStrikethrough.ImageTransparentColor = System.Drawing.Color.White;
             this.toolStripStrikethrough.Name = "toolStripStrikethrough";
             this.toolStripStrikethrough.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripStrikethrough.Size = new System.Drawing.Size(34, 28);
+            this.toolStripStrikethrough.Size = new System.Drawing.Size(34, 33);
             this.toolStripStrikethrough.Text = "Strikethrough";
             this.toolStripStrikethrough.Click += new System.EventHandler(this.toolStripStrikethrough_Click);
             this.toolStripStrikethrough.MouseEnter += new System.EventHandler(this.toolStripStrikethrough_MouseEnter);
@@ -596,7 +595,7 @@ namespace RTFPad
             this.toolStripFontColor.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripFontColor.Name = "toolStripFontColor";
             this.toolStripFontColor.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripFontColor.Size = new System.Drawing.Size(42, 28);
+            this.toolStripFontColor.Size = new System.Drawing.Size(34, 33);
             this.toolStripFontColor.Text = "Color Picker";
             this.toolStripFontColor.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolStripFontColor_DropDownItemClicked);
             this.toolStripFontColor.MouseEnter += new System.EventHandler(this.toolStripFontColor_MouseEnter);
@@ -609,7 +608,7 @@ namespace RTFPad
             this.toolStripAlignLeft.ImageTransparentColor = System.Drawing.Color.White;
             this.toolStripAlignLeft.Name = "toolStripAlignLeft";
             this.toolStripAlignLeft.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripAlignLeft.Size = new System.Drawing.Size(34, 28);
+            this.toolStripAlignLeft.Size = new System.Drawing.Size(34, 33);
             this.toolStripAlignLeft.Text = "Left Align";
             this.toolStripAlignLeft.Click += new System.EventHandler(this.toolStripAlignLeft_Click);
             this.toolStripAlignLeft.MouseEnter += new System.EventHandler(this.toolStripAlignLeft_MouseEnter);
@@ -622,7 +621,7 @@ namespace RTFPad
             this.toolStripAlignCenter.ImageTransparentColor = System.Drawing.Color.White;
             this.toolStripAlignCenter.Name = "toolStripAlignCenter";
             this.toolStripAlignCenter.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripAlignCenter.Size = new System.Drawing.Size(34, 28);
+            this.toolStripAlignCenter.Size = new System.Drawing.Size(34, 33);
             this.toolStripAlignCenter.Text = "Center";
             this.toolStripAlignCenter.Click += new System.EventHandler(this.toolStripAlignCenter_Click);
             this.toolStripAlignCenter.MouseEnter += new System.EventHandler(this.toolStripAlignCenter_MouseEnter);
@@ -635,7 +634,7 @@ namespace RTFPad
             this.toolStripAlignRight.ImageTransparentColor = System.Drawing.Color.White;
             this.toolStripAlignRight.Name = "toolStripAlignRight";
             this.toolStripAlignRight.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripAlignRight.Size = new System.Drawing.Size(34, 28);
+            this.toolStripAlignRight.Size = new System.Drawing.Size(34, 33);
             this.toolStripAlignRight.Text = "Right Align";
             this.toolStripAlignRight.Click += new System.EventHandler(this.toolStripAlignRight_Click);
             this.toolStripAlignRight.MouseEnter += new System.EventHandler(this.toolStripAlignRight_MouseEnter);
@@ -649,7 +648,7 @@ namespace RTFPad
             this.toolStripBullet.Margin = new System.Windows.Forms.Padding(0);
             this.toolStripBullet.Name = "toolStripBullet";
             this.toolStripBullet.Overflow = System.Windows.Forms.ToolStripItemOverflow.Never;
-            this.toolStripBullet.Size = new System.Drawing.Size(34, 33);
+            this.toolStripBullet.Size = new System.Drawing.Size(34, 38);
             this.toolStripBullet.Text = "Bullets";
             this.toolStripBullet.Click += new System.EventHandler(this.toolStripBullet_Click);
             this.toolStripBullet.MouseEnter += new System.EventHandler(this.toolStripBullet_MouseEnter);
@@ -671,11 +670,11 @@ namespace RTFPad
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tabControl.ItemSize = new System.Drawing.Size(0, 18);
-            this.tabControl.Location = new System.Drawing.Point(0, 66);
+            this.tabControl.Location = new System.Drawing.Point(0, 74);
             this.tabControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(1258, 962);
+            this.tabControl.Size = new System.Drawing.Size(978, 954);
             this.tabControl.TabIndex = 0;
             this.tabControl.SelectedIndexChanged += new System.EventHandler(this.tabControl_SelectedIndexChanged);
             this.tabControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tabControl_MouseUp);
@@ -688,7 +687,7 @@ namespace RTFPad
             this.statusStrip.Location = new System.Drawing.Point(0, 1028);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Padding = new System.Windows.Forms.Padding(2, 0, 21, 0);
-            this.statusStrip.Size = new System.Drawing.Size(1258, 22);
+            this.statusStrip.Size = new System.Drawing.Size(978, 22);
             this.statusStrip.TabIndex = 3;
             // 
             // statusStripInfoLabel
@@ -754,16 +753,16 @@ namespace RTFPad
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1258, 1050);
+            this.ClientSize = new System.Drawing.Size(978, 1050);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Location = new System.Drawing.Point(175, 50);
+            this.Location = new System.Drawing.Point(300, 10);
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.MinimumSize = new System.Drawing.Size(1189, 893);
+            this.MinimumSize = new System.Drawing.Size(300, 100);
             this.Name = "rtfPadForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "RTFPad";
