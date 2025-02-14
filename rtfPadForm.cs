@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 using PrintPreviewRichTextBox;
+using System.Linq;
 
 namespace RTFPad
 {
@@ -66,17 +67,22 @@ namespace RTFPad
         private void FontsAndColors()
         {
             this.fontList = FontFamily.Families;
+            object[] fontObjects = new object[fontList.Count()];
+            int fontIdx = 0;   
             foreach (FontFamily font in fontList)
             {
-                this.toolStripCBoxFont.Items.Add(font.Name);
+                fontObjects[fontIdx++] = font.Name;
             }
-            foreach (string color in colorList)
-            {
-                Color boja = Color.FromKnownColor((KnownColor)System.Enum.Parse(typeof(KnownColor), color));
-                if (boja.IsSystemColor == false && boja.Name != Color.Transparent.Name)
-                    this.toolStripFontColor.DropDownItems.Add(color);
+            this.toolStripCBoxFont.Items.AddRange(fontObjects);
 
-            }
+            //foreach (string color in colorList)
+            //{
+            //    Color boja = Color.FromKnownColor((KnownColor)System.Enum.Parse(typeof(KnownColor), color));
+            //    if (boja.IsSystemColor == false && boja.Name != Color.Transparent.Name)
+            //    {
+            //        this.toolStripFontColor.DropDownItems.Add(color);
+            //    }
+            //}
         }
         #endregion
 
@@ -546,23 +552,16 @@ namespace RTFPad
         }
 
         /* Tool Strip Color */
-        private void toolStripFontColor_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void toolStripFontColor_Click(object sender, EventArgs e)
         {
-            if (this.tabControl.TabCount <= 0) return;
+            ColorDialog MyDialog = new ColorDialog();
+            MyDialog.Color = Color.Black;
 
-            RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
-            rtb.SelectionColor = Color.FromKnownColor((KnownColor)System.Enum.Parse(typeof(KnownColor), e.ClickedItem.Text));
-
-            if (!this.selectedColorInTab.ContainsKey(this.tabControl.SelectedTab.Text))
-                this.selectedColorInTab.Add(this.tabControl.SelectedTab.Text, default(int));
-
-            int index;
-            this.selectedColorInTab.TryGetValue(this.tabControl.SelectedTab.Text, out index);
-
-            ((ToolStripMenuItem)this.toolStripFontColor.DropDownItems[index]).Checked = false;
-            this.selectedColorInTab[this.tabControl.SelectedTab.Text] = this.toolStripFontColor.
-                                                                        DropDownItems.IndexOf((ToolStripMenuItem)e.ClickedItem);
-            ((ToolStripMenuItem)e.ClickedItem).Checked = true;
+            if (MyDialog.ShowDialog() == DialogResult.OK)
+            {
+                RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+                rtb.SelectionColor = MyDialog.Color;
+            }
         }
 
         /* Tool Strip Undo */
@@ -1419,5 +1418,6 @@ namespace RTFPad
                 }
             }
         }
+
     }
 }
