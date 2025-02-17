@@ -118,22 +118,22 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <metadata name="menuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>284, 65</value>
+    <value>1165, 17</value>
   </metadata>
   <metadata name="toolStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>152, 65</value>
+    <value>1030, 17</value>
   </metadata>
   <metadata name="dialogOpen.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>440, 65</value>
+    <value>17, 63</value>
   </metadata>
   <metadata name="dialogSave.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>746, 65</value>
+    <value>328, 63</value>
   </metadata>
   <metadata name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>598, 65</value>
+    <value>178, 63</value>
   </metadata>
   <metadata name="tabMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 65</value>
+    <value>892, 17</value>
   </metadata>
   <metadata name="dialogPrintPreview.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>168, 17</value>
@@ -324,6 +324,21 @@
   <metadata name="dialogColor.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>582, 17</value>
   </metadata>
+  <data name="btnToBottom.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAW
+        JQAAFiUBSVIk8AAAAhhJREFUOE/N099Lk1Ecx3H/hCDI5vPs+f3smeIUxaVkIog/LlyD0NyFVBCWLcUk
+        CCS96Mc0oUA0gsBQiyCEoA1sF1YENRduWg1LWBAFGppB/8I7nrayOaPbLr4X5/A9r3Pgez4FmquYvLLc
+        +XuuYvQda4diUfBrIasa5Y0Bxm9N0NVRh6CY2UYLUS4l0HOZOzeHaax0IeqZC3IASZapbD/P4uu3jPYc
+        ptCpZwETh1DBubE50m+itNWZPw/uClS09fMyscRw0JcH9N6I8C4Z4cihfwGLyb8AYVYS/yngRtYMipxS
+        LiAoOFUDUVMp3AHsE3Ukw8oAslVGVX0TZYaDEn8fscQSodPN7FHKqG1uouFgDcLeEoLXM4DPK6FWean1
+        VmWA/UY5J0bucy90ivqOXp69WGCo5yitA7eZmgwxMz1Dv6+Ds1dmWY7NEvDXM/pgiovtLRlAUAxagtdI
+        rX4kEp4jHlsgHI2SSK8yMXCSoalHrKSSzEfjLCeeM/f0CenUPMcasi/QDBOn5qFz8C7v17bYWF9j6+sn
+        Ho5dwKOpSN5WJsJxvn3fYv3LJhvpJINdPkRV356CohkIajndV6f5sLHG48lLVJsmgmoiyirGAT/j4Vds
+        fk4x0hdAVFQkw507RlnTUYpr6Ow+Q1O1hyI7C5YdIDeipFHaGCAYPE6JYU9ml39gl2qYFDnV3w1/lh02
+        h1NDNreTagM/AHb2ypKZSGYxAAAAAElFTkSuQmCC
+</value>
+  </data>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>121</value>
   </metadata>

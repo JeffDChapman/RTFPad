@@ -95,6 +95,7 @@ namespace RTFPad
             this.dialogPageSetup = new System.Windows.Forms.PageSetupDialog();
             this.dialogFont = new System.Windows.Forms.FontDialog();
             this.dialogColor = new System.Windows.Forms.ColorDialog();
+            this.btnToBottom = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -113,7 +114,7 @@ namespace RTFPad
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(978, 36);
+            this.menuStrip1.Size = new System.Drawing.Size(978, 33);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -379,6 +380,7 @@ namespace RTFPad
             // toolStrip
             // 
             this.toolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripNew,
             this.toolStripOpen,
@@ -398,10 +400,10 @@ namespace RTFPad
             this.toolStripAlignCenter,
             this.toolStripAlignRight,
             this.toolStripBullet});
-            this.toolStrip.Location = new System.Drawing.Point(0, 36);
+            this.toolStrip.Location = new System.Drawing.Point(0, 33);
             this.toolStrip.Name = "toolStrip";
             this.toolStrip.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip.Size = new System.Drawing.Size(978, 38);
+            this.toolStrip.Size = new System.Drawing.Size(978, 33);
             this.toolStrip.Stretch = true;
             this.toolStrip.TabIndex = 2;
             this.toolStrip.Text = "toolStrip";
@@ -670,11 +672,11 @@ namespace RTFPad
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tabControl.ItemSize = new System.Drawing.Size(0, 18);
-            this.tabControl.Location = new System.Drawing.Point(0, 74);
+            this.tabControl.Location = new System.Drawing.Point(0, 66);
             this.tabControl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(978, 954);
+            this.tabControl.Size = new System.Drawing.Size(978, 962);
             this.tabControl.TabIndex = 0;
             this.tabControl.SelectedIndexChanged += new System.EventHandler(this.tabControl_SelectedIndexChanged);
             this.tabControl.MouseUp += new System.Windows.Forms.MouseEventHandler(this.tabControl_MouseUp);
@@ -749,11 +751,27 @@ namespace RTFPad
             this.dialogColor.AnyColor = true;
             this.dialogColor.FullOpen = true;
             // 
+            // btnToBottom
+            // 
+            this.btnToBottom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnToBottom.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.btnToBottom.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnToBottom.Image = ((System.Drawing.Image)(resources.GetObject("btnToBottom.Image")));
+            this.btnToBottom.Location = new System.Drawing.Point(905, 124);
+            this.btnToBottom.Margin = new System.Windows.Forms.Padding(0);
+            this.btnToBottom.Name = "btnToBottom";
+            this.btnToBottom.Size = new System.Drawing.Size(26, 24);
+            this.btnToBottom.TabIndex = 4;
+            this.btnToBottom.UseVisualStyleBackColor = true;
+            this.btnToBottom.Visible = false;
+            this.btnToBottom.Click += new System.EventHandler(this.btnToBottom_Click);
+            // 
             // rtfPadForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(978, 1050);
+            this.Controls.Add(this.btnToBottom);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.toolStrip);
@@ -767,6 +785,7 @@ namespace RTFPad
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "RTFPad";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.rtfPadForm_FormClosing);
+            this.Resize += new System.EventHandler(this.rtfPadForm_Resize);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.toolStrip.ResumeLayout(false);
@@ -845,6 +864,7 @@ namespace RTFPad
         private System.Windows.Forms.ToolStripMenuItem menuFormatColor;
         private System.Windows.Forms.ColorDialog dialogColor;
         private System.Windows.Forms.ToolStripButton toolStripBullet;
+        private System.Windows.Forms.Button btnToBottom;
     }
 }
 
