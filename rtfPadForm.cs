@@ -20,6 +20,7 @@ namespace RTFPad
         protected internal TabControl tabControl = new TabControl();
         private FontFamily[] fontList;
         private string[] colorList = System.Enum.GetNames(typeof(KnownColor));
+        private string punctList = ",. :;'\"?!";
         #endregion
 
         #region constructor
@@ -835,7 +836,13 @@ namespace RTFPad
         /* Function which finds the first occurence of textToFind in the textbox
          * Used by: Find, Find Next, Replace, Replace All
          */
+
         protected internal bool findText(string textToFind, bool searchDirectionDown, bool matchCase)
+        {
+            return findTextWhole(textToFind,  searchDirectionDown,  matchCase, false);
+        }
+
+        protected internal bool findTextWhole(string textToFind, bool searchDirectionDown, bool matchCase, bool wholeWord)
         {
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
             StringComparison comparator = matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
@@ -859,6 +866,16 @@ namespace RTFPad
                 startIndex = rtb.Text.LastIndexOf(textToFind, rtb.SelectionStart, comparator);
             }
             if (startIndex == -1 || startIndex >= rtb.Text.Length) return false;
+            if (wholeWord)
+            {
+                string checkpunct;
+                try { checkpunct = rtb.Text.Substring(startIndex - 1, 1); }
+                catch { checkpunct = " "; }
+                if (!punctList.Contains(checkpunct)) { return false; }
+                try { checkpunct = rtb.Text.Substring(startIndex + length, 1); }
+                catch { checkpunct = " "; }
+                if (!punctList.Contains(checkpunct)) { return false; }
+            }
             rtb.Select(startIndex, length);
             rtb.ScrollToCaret();
             return true;
@@ -1167,20 +1184,46 @@ namespace RTFPad
             }
         }
 
-        /* Event which watches for the change in form size
-         * Used for styling the Tool Strip so it's displayed in two rows when possible
-         */
-        //private void rtfPadForm_SizeChanged(object sender, EventArgs e)
-        //{
-        //    if (this.WindowState == FormWindowState.Maximized || this.Size.Width > 900 )
-        //    {
-        //        toolStripSeparator5.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
-        //    }
-        //    else
-        //    {
-        //        toolStripSeparator5.Margin = new System.Windows.Forms.Padding(0, 0, 500, 0);
-        //    }
-        //}
+        private void rtfPadForm_Resize(object sender, EventArgs e)
+        {
+            this.toolStrip.ImageScalingSize = new Size(16, 16);
+        }
+
+        private void btnToBottom_Click(object sender, EventArgs e)
+        {
+            RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+            rtb.BringToFront();
+            rtb.Focus();
+            SendKeys.Send("^({END})");
+            btnToBottom.Visible = false;
+        }
+
+        private void rtfPadForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (this.tabControl.TabCount <= 0) return;
+
+            for (int i = this.tabControl.TabCount; i > 0; --i)
+            {
+                this.tabControl.SelectedIndex = i;
+                RichTextBox rtb = (RichTextBox)this.tabControl.TabPages[i - 1].Controls[0];
+
+                if (rtb.Text != rtb.Tag.ToString())
+                {
+                    DialogResult result = MessageBox.Show("Do you wish to save changes to " + this.tabControl.SelectedTab.Text + " ?",
+                                     "RTFPad", MessageBoxButtons.YesNoCancel);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        menuFileSave_Click(sender, e);
+                    }
+                    else if (result == DialogResult.Cancel)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+            }
+        }
         #endregion
 
         #region Tool Strip Mouse Over Events
@@ -1391,45 +1434,5 @@ namespace RTFPad
             MessageBox.Show("Error: " + exception.ToString(), "RTFPad");
         }
 
-        private void rtfPadForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (this.tabControl.TabCount <= 0) return;
-
-            for (int i = this.tabControl.TabCount; i > 0; --i)
-            {
-                this.tabControl.SelectedIndex = i;
-                RichTextBox rtb = (RichTextBox)this.tabControl.TabPages[i - 1].Controls[0];
-
-                if (rtb.Text != rtb.Tag.ToString())
-                {
-                    DialogResult result = MessageBox.Show("Do you wish to save changes to " + this.tabControl.SelectedTab.Text + " ?",
-                                     "RTFPad", MessageBoxButtons.YesNoCancel);
-
-                    if (result == DialogResult.Yes)
-                    {
-                        menuFileSave_Click(sender, e);
-                    }
-                    else if (result == DialogResult.Cancel)
-                    {
-                        e.Cancel = true;
-                        return;
-                    }
-                }
-            }
-        }
-
-        private void rtfPadForm_Resize(object sender, EventArgs e)
-        {
-            this.toolStrip.ImageScalingSize = new Size(16, 16);
-        }
-
-        private void btnToBottom_Click(object sender, EventArgs e)
-        {
-            RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
-            rtb.BringToFront();
-            rtb.Focus();
-            SendKeys.Send("^({END})");
-            btnToBottom.Visible = false;
-        }
     }
 }
