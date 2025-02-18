@@ -22,6 +22,9 @@ namespace RTFPad
         private string[] colorList = System.Enum.GetNames(typeof(KnownColor));
         private string punctList = ",. :;'\"?!";
         private bool pastEOD;
+        private string recentlyEdited = "";
+        private string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        private string recentEditPath = @"recentEdits.txt";
         #endregion
 
         #region constructor
@@ -59,6 +62,8 @@ namespace RTFPad
                 }
 
             }
+            try { recentlyEdited = File.ReadAllText(strExeFilePath + recentEditPath); }
+            catch { }
             this.newTab();
             this.rtb_SelectionChanged(this, new EventArgs());
             this.toolStripCBoxFont.Text = "Calibri";
@@ -172,8 +177,17 @@ namespace RTFPad
             this.fileTypeInTab[this.tabControl.SelectedTab.Text] = fileType;
             this.rtb_SelectionChanged(sender, e);
             this.tabControl_SelectedIndexChanged(sender, e);
-            string backupFileName = wholeFileName.Substring(0, wholeFileName.LastIndexOf('.')) + ".bak";
-            File.Copy(wholeFileName, backupFileName, true);
+            if (!recentlyEdited.Contains(wholeFileName))
+            {
+                btnEditDocument.Visible = true;
+                rtb.ReadOnly = true;
+                this.tabControl.SelectedTab.BackColor = Color.Blue;
+            }
+            else
+            {
+                string backupFileName = wholeFileName.Substring(0, wholeFileName.LastIndexOf('.')) + ".bak";
+                File.Copy(wholeFileName, backupFileName, true);
+            }
             if (rtb.TextLength > 1000) { btnToBottom.Visible = true; }
         }
 
@@ -1224,9 +1238,26 @@ namespace RTFPad
             btnToBottom.Visible = false;
         }
 
+        private void btnEditDocument_Click(object sender, EventArgs e)
+        {
+            btnEditDocument.Visible = false;
+            string currentTabKey = this.tabControl.SelectedTab.Text;
+            string wholeFileName = this.fileNameInTab[currentTabKey];
+            recentlyEdited = wholeFileName + ";" + recentlyEdited;
+            RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+            rtb.ReadOnly = false;
+            this.tabControl.SelectedTab.BackColor = SystemColors.Control;
+            string backupFileName = wholeFileName.Substring(0, wholeFileName.LastIndexOf('.')) + ".bak";
+            File.Copy(wholeFileName, backupFileName, true);
+        }
+
         private void rtfPadForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (this.tabControl.TabCount <= 0) return;
+
+            int maxEdLen = recentlyEdited.Length;
+            if (maxEdLen > 500) { maxEdLen = 500; }
+            File.WriteAllText(strExeFilePath + recentEditPath, recentlyEdited.Substring(0, maxEdLen));
 
             for (int i = this.tabControl.TabCount; i > 0; --i)
             {
@@ -1459,6 +1490,6 @@ namespace RTFPad
         {
             MessageBox.Show("Error: " + exception.ToString(), "RTFPad");
         }
-
+      
     }
 }

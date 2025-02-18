@@ -96,6 +96,7 @@ namespace RTFPad
             this.dialogFont = new System.Windows.Forms.FontDialog();
             this.dialogColor = new System.Windows.Forms.ColorDialog();
             this.btnToBottom = new System.Windows.Forms.Button();
+            this.btnEditDocument = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -766,11 +767,27 @@ namespace RTFPad
             this.btnToBottom.Visible = false;
             this.btnToBottom.Click += new System.EventHandler(this.btnToBottom_Click);
             // 
+            // btnEditDocument
+            // 
+            this.btnEditDocument.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnEditDocument.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.btnEditDocument.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnEditDocument.Image = ((System.Drawing.Image)(resources.GetObject("btnEditDocument.Image")));
+            this.btnEditDocument.Location = new System.Drawing.Point(896, 124);
+            this.btnEditDocument.Margin = new System.Windows.Forms.Padding(0);
+            this.btnEditDocument.Name = "btnEditDocument";
+            this.btnEditDocument.Size = new System.Drawing.Size(36, 36);
+            this.btnEditDocument.TabIndex = 5;
+            this.btnEditDocument.UseVisualStyleBackColor = true;
+            this.btnEditDocument.Visible = false;
+            this.btnEditDocument.Click += new System.EventHandler(this.btnEditDocument_Click);
+            // 
             // rtfPadForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(978, 1050);
+            this.Controls.Add(this.btnEditDocument);
             this.Controls.Add(this.btnToBottom);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.statusStrip);
@@ -865,6 +882,7 @@ namespace RTFPad
         private System.Windows.Forms.ColorDialog dialogColor;
         private System.Windows.Forms.ToolStripButton toolStripBullet;
         private System.Windows.Forms.Button btnToBottom;
+        private System.Windows.Forms.Button btnEditDocument;
     }
 }
 
