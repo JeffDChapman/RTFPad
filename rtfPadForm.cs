@@ -21,6 +21,7 @@ namespace RTFPad
         private FontFamily[] fontList;
         private string[] colorList = System.Enum.GetNames(typeof(KnownColor));
         private string punctList = ",. :;'\"?!";
+        private bool pastEOD;
         #endregion
 
         #region constructor
@@ -152,7 +153,8 @@ namespace RTFPad
 
             this.tabControl.SelectedTab.Text = FileToOpen;
             int fileType = 0;
-            if (this.dialogOpen.FilterIndex == 1)
+            string exten = wholeFileName.Substring(wholeFileName.LastIndexOf('.') + 1);
+            if (exten.ToLower() == "rtf")
             {
                 rtb.LoadFile(wholeFileName, RichTextBoxStreamType.RichText);
                 fileType = 1;
@@ -843,6 +845,18 @@ namespace RTFPad
         }
 
         protected internal bool findTextWhole(string textToFind, bool searchDirectionDown, bool matchCase, bool wholeWord)
+        {   if (!wholeWord)
+                { return BasicFind(textToFind, searchDirectionDown, matchCase, wholeWord); }
+            pastEOD = false;
+            while (!pastEOD)
+            {
+                bool findResult = BasicFind(textToFind, searchDirectionDown, matchCase, wholeWord);
+                if (findResult) {return true;}
+            }
+            return false;
+        }
+
+        private bool BasicFind(string textToFind, bool searchDirectionDown, bool matchCase, bool wholeWord)
         {
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
             StringComparison comparator = matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
@@ -865,16 +879,28 @@ namespace RTFPad
             {
                 startIndex = rtb.Text.LastIndexOf(textToFind, rtb.SelectionStart, comparator);
             }
-            if (startIndex == -1 || startIndex >= rtb.Text.Length) return false;
+            if (startIndex == -1 || startIndex >= rtb.Text.Length)
+            {
+                pastEOD = true;
+                return false;
+            }
             if (wholeWord)
             {
                 string checkpunct;
                 try { checkpunct = rtb.Text.Substring(startIndex - 1, 1); }
                 catch { checkpunct = " "; }
-                if (!punctList.Contains(checkpunct)) { return false; }
+                if (!punctList.Contains(checkpunct)) 
+                { 
+                    rtb.Select(startIndex, length); 
+                    return false; 
+                }
                 try { checkpunct = rtb.Text.Substring(startIndex + length, 1); }
                 catch { checkpunct = " "; }
-                if (!punctList.Contains(checkpunct)) { return false; }
+                if (!punctList.Contains(checkpunct))
+                {
+                    rtb.Select(startIndex, length);
+                    return false;
+                }
             }
             rtb.Select(startIndex, length);
             rtb.ScrollToCaret();
@@ -884,12 +910,12 @@ namespace RTFPad
         /* Function which replaces the first occurence of textToReplace with replaceWith
          * Used by: Replace, Replace All
          */
-        protected internal bool replaceText(string textToReplace, string replaceWith, bool matchCase)
+        protected internal bool replaceText(string textToReplace, string replaceWith, bool matchCase, bool matchword)
         {
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
             if (rtb.SelectedText.Length == 0 || rtb.SelectedText.ToLower() != textToReplace.ToLower())
             {
-                return findText(textToReplace, true, matchCase);
+                return findTextWhole(textToReplace, true, matchCase, matchword);
             }
             else
             {
@@ -901,14 +927,14 @@ namespace RTFPad
         /* Replaces all matching text with another
          * Used by: Replace All
          */
-        protected internal void replaceAllInText(string textToReplace, string replaceWith, bool matchCase)
+        protected internal void replaceAllInText(string textToReplace, string replaceWith, bool matchCase, bool matchWord)
         {
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
             rtb.SelectionStart = 0;
             rtb.SelectionLength = 0;
-            while (this.findText(textToReplace, true, matchCase))
+            while (this.findTextWhole(textToReplace, true, matchCase, matchWord))
             {
-                replaceText(textToReplace, replaceWith, matchCase);
+                replaceText(textToReplace, replaceWith, matchCase, matchWord);
             }
         }
 

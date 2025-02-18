@@ -96,6 +96,9 @@
     <EmbeddedResource Include="aboutForm.resx">
       <DependentUpon>aboutForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="findForm.resx">
+      <DependentUpon>findForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="icons.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>icons1.Designer.cs</LastGenOutput>
@@ -110,6 +113,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="replaceForm.resx">
+      <DependentUpon>replaceForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="rtfPadForm.resx">
       <DependentUpon>rtfPadForm.cs</DependentUpon>
     </EmbeddedResource>
