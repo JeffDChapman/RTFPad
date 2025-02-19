@@ -97,6 +97,7 @@ namespace RTFPad
             this.dialogColor = new System.Windows.Forms.ColorDialog();
             this.btnToBottom = new System.Windows.Forms.Button();
             this.btnEditDocument = new System.Windows.Forms.Button();
+            this.timerAutoloadFile = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -782,6 +783,12 @@ namespace RTFPad
             this.btnEditDocument.Visible = false;
             this.btnEditDocument.Click += new System.EventHandler(this.btnEditDocument_Click);
             // 
+            // timerAutoloadFile
+            // 
+            this.timerAutoloadFile.Enabled = true;
+            this.timerAutoloadFile.Interval = 1000;
+            this.timerAutoloadFile.Tick += new System.EventHandler(this.timerAutoloadFile_Tick);
+            // 
             // rtfPadForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -883,6 +890,7 @@ namespace RTFPad
         private System.Windows.Forms.ToolStripButton toolStripBullet;
         private System.Windows.Forms.Button btnToBottom;
         private System.Windows.Forms.Button btnEditDocument;
+        private System.Windows.Forms.Timer timerAutoloadFile;
     }
 }
 

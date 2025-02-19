@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
 using PrintPreviewRichTextBox;
+using System.Threading;
 
 namespace RTFPad
 {
@@ -25,13 +26,31 @@ namespace RTFPad
         private string recentlyEdited = "";
         private string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
         private string recentEditPath = @"recentEdits.txt";
+        private string autoLoadFile = @"autoload.txt";
         #endregion
 
         #region constructor
         public rtfPadForm(string startdoc)
         {
             InitializeComponent();
+            bool ok;
+            Mutex ownerMutex;
+            ownerMutex = new System.Threading.Mutex(true, "RTFPad", out ok);
+            if (!ok)
+            {
+                string chkFileName = strExeFilePath + autoLoadFile;
+                File.WriteAllText(chkFileName, startdoc);
+                this.Close();
+                Application.Exit();
+                return;
+            }
+            GC.KeepAlive(ownerMutex);
             SetupTheForm();
+            LoadFileFromParm(startdoc);
+        }
+
+        private void LoadFileFromParm(string startdoc)
+        {
             int LastSlash = startdoc.LastIndexOf('\\');
             string FileToOpen = startdoc.Substring(LastSlash + 1);
             try { OpenFileNamed(this, null, FileToOpen, startdoc); }
@@ -1490,6 +1509,14 @@ namespace RTFPad
         {
             MessageBox.Show("Error: " + exception.ToString(), "RTFPad");
         }
-      
+
+        private void timerAutoloadFile_Tick(object sender, EventArgs e)
+        {
+            string chkFileName = strExeFilePath + autoLoadFile;
+            if (!File.Exists(chkFileName)) {return;}
+            string fileToLoad = File.ReadAllText(chkFileName);
+            File.Delete(chkFileName);
+            LoadFileFromParm(fileToLoad);
+        }
     }
 }
