@@ -21,7 +21,7 @@ namespace RTFPad
         protected internal TabControl tabControl = new TabControl();
         private FontFamily[] fontList;
         private string[] colorList = System.Enum.GetNames(typeof(KnownColor));
-        private string punctList = ",. :;'\"?!";
+        private string punctList = ",. :;'\"?!\n\r";
         private bool pastEOD;
         private string recentlyEdited = "";
         private string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -39,7 +39,7 @@ namespace RTFPad
             if (!ok)
             {
                 string chkFileName = strExeFilePath + autoLoadFile;
-                File.WriteAllText(chkFileName, startdoc);
+                File.AppendAllText(chkFileName, startdoc + "\n\r");
                 this.Close();
                 Application.Exit();
                 return;
@@ -1514,9 +1514,12 @@ namespace RTFPad
         {
             string chkFileName = strExeFilePath + autoLoadFile;
             if (!File.Exists(chkFileName)) {return;}
-            string fileToLoad = File.ReadAllText(chkFileName);
+            string[] loadFileList = File.ReadAllLines(chkFileName);
             File.Delete(chkFileName);
-            LoadFileFromParm(fileToLoad);
+            foreach (string loadFile in loadFileList)
+            { 
+                if (loadFile.Length > 2) { LoadFileFromParm(loadFile); }
+            }
         }
     }
 }
