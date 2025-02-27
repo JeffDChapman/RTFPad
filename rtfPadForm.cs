@@ -857,7 +857,17 @@ namespace RTFPad
                 MessageBox.Show("There are no tabs", "Cannot Close Tab", MessageBoxButtons.OK);
                 return;
             }
+
             string tabKey = this.tabControl.SelectedTab.Text;
+
+            // add to MRU list
+            ToolStripMenuItem newMRUitem = new ToolStripMenuItem();
+            newMRUitem.Text = tabKey;
+            newMRUitem.Tag = this.fileNameInTab[tabKey];
+            newMRUitem.Click += new System.EventHandler(this.menuRecentLoad_Click);
+            this.menuRecent.DropDownItems.Insert(0, newMRUitem);
+
+            // remove tab info and tab
             this.fileNameInTab.Remove(tabKey);
             this.fileTypeInTab.Remove(tabKey);
             this.openedFileInTab.Remove(tabKey);
@@ -1002,7 +1012,7 @@ namespace RTFPad
 
 
         /* Blocks Ctrl + i in tab to act as the tab key
-         * 
+         * In ReadOnly, a space sends a page down
          */
         private void rtb_KeyDown(object sender, KeyEventArgs e)
         {
@@ -1011,6 +1021,29 @@ namespace RTFPad
             if (e.Modifiers == Keys.Control && e.KeyCode == Keys.I)
             {
                 e.SuppressKeyPress = true;
+            }
+            if (rtb.ReadOnly && e.KeyCode == Keys.Space) 
+            { 
+                SendKeys.Send("{PGDN}");
+                e.SuppressKeyPress = true;
+            }
+        }
+
+
+        private void showStdErr(Exception exception)
+        {
+            MessageBox.Show("Error: " + exception.ToString(), "RTFPad");
+        }
+
+        private void timerAutoloadFile_Tick(object sender, EventArgs e)
+        {
+            string chkFileName = strExeFilePath + autoLoadFile;
+            if (!File.Exists(chkFileName)) { return; }
+            string[] loadFileList = File.ReadAllLines(chkFileName);
+            File.Delete(chkFileName);
+            foreach (string loadFile in loadFileList)
+            {
+                if (loadFile.Length > 2) { LoadFileFromParm(loadFile); }
             }
         }
         #endregion
@@ -1505,21 +1538,12 @@ namespace RTFPad
         }
         #endregion
 
-        private void showStdErr(Exception exception)
+        private void menuRecentLoad_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Error: " + exception.ToString(), "RTFPad");
-        }
-
-        private void timerAutoloadFile_Tick(object sender, EventArgs e)
-        {
-            string chkFileName = strExeFilePath + autoLoadFile;
-            if (!File.Exists(chkFileName)) {return;}
-            string[] loadFileList = File.ReadAllLines(chkFileName);
-            File.Delete(chkFileName);
-            foreach (string loadFile in loadFileList)
-            { 
-                if (loadFile.Length > 2) { LoadFileFromParm(loadFile); }
-            }
+            ToolStripMenuItem MRUtoOpen = (ToolStripMenuItem)sender;
+            string shortFileName = MRUtoOpen.Text;
+            string MRUfileToOpen = MRUtoOpen.Tag.ToString();
+            OpenFileNamed(sender, null, shortFileName, MRUfileToOpen);
         }
     }
 }

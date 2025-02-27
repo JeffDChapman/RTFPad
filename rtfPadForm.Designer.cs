@@ -35,6 +35,8 @@ namespace RTFPad
             this.menuFileNewTab = new System.Windows.Forms.ToolStripMenuItem();
             this.menuFileCloseCurrentTab = new System.Windows.Forms.ToolStripMenuItem();
             this.menuFileOpen = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuRecent = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuRecentLoad = new System.Windows.Forms.ToolStripMenuItem();
             this.menuFileSave = new System.Windows.Forms.ToolStripMenuItem();
             this.menuFileSaveAs = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -126,6 +128,7 @@ namespace RTFPad
             this.menuFileNewTab,
             this.menuFileCloseCurrentTab,
             this.menuFileOpen,
+            this.menuRecent,
             this.menuFileSave,
             this.menuFileSaveAs,
             this.toolStripSeparator1,
@@ -163,6 +166,21 @@ namespace RTFPad
             this.menuFileOpen.Size = new System.Drawing.Size(320, 34);
             this.menuFileOpen.Text = "&Open...";
             this.menuFileOpen.Click += new System.EventHandler(this.menuFileOpen_Click);
+            // 
+            // menuRecent
+            // 
+            this.menuRecent.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuRecentLoad});
+            this.menuRecent.Name = "menuRecent";
+            this.menuRecent.Size = new System.Drawing.Size(320, 34);
+            this.menuRecent.Text = "Recent...";
+            // 
+            // menuRecentLoad
+            // 
+            this.menuRecentLoad.Name = "menuRecentLoad";
+            this.menuRecentLoad.Size = new System.Drawing.Size(270, 34);
+            this.menuRecentLoad.Text = "(filename)";
+            this.menuRecentLoad.Click += new System.EventHandler(this.menuRecentLoad_Click);
             // 
             // menuFileSave
             // 
@@ -891,6 +909,8 @@ namespace RTFPad
         private System.Windows.Forms.Button btnToBottom;
         private System.Windows.Forms.Button btnEditDocument;
         private System.Windows.Forms.Timer timerAutoloadFile;
+        private System.Windows.Forms.ToolStripMenuItem menuRecent;
+        private System.Windows.Forms.ToolStripMenuItem menuRecentLoad;
     }
 }
 
