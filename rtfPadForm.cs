@@ -151,7 +151,8 @@ namespace RTFPad
             {
                 string FileToOpen = this.dialogOpen.SafeFileName;
                 string wholeFileName = this.dialogOpen.FileName;
-                OpenFileNamed(sender, e, FileToOpen, wholeFileName);
+                try { OpenFileNamed(sender, e, FileToOpen, wholeFileName); }
+                catch (Exception exception) { showStdErr(exception); }
             }
         }
 
@@ -169,7 +170,7 @@ namespace RTFPad
 
             if (exists) { return; }
 
-            if (this.tabControl.TabCount < MAX_TABS) menuFileNew_Click(sender, e);
+            if (this.tabControl.TabCount < MAX_TABS) this.newTab();
             else
             {
                 DialogResult mBoxResult = MessageBox.Show("Max tab count reached! Do you wish to open the file in the current tab?",
@@ -205,15 +206,25 @@ namespace RTFPad
             this.tabControl.SelectedTab.Text = FileToOpen;
             int fileType = 0;
             string exten = wholeFileName.Substring(wholeFileName.LastIndexOf('.') + 1);
-            if (exten.ToLower() == "rtf")
+            try
             {
-                rtb.LoadFile(wholeFileName, RichTextBoxStreamType.RichText);
-                fileType = 1;
+                if (exten.ToLower() == "rtf")
+                {
+                    rtb.LoadFile(wholeFileName, RichTextBoxStreamType.RichText);
+                    fileType = 1;
+                }
+                else
+                {
+                    rtb.LoadFile(wholeFileName, RichTextBoxStreamType.PlainText);
+                    fileType = 2;
+                }
             }
-            else
+            catch (Exception loadEx) 
             {
-                rtb.LoadFile(wholeFileName, RichTextBoxStreamType.PlainText);
-                fileType = 2;
+                int badTab = this.tabControl.SelectedIndex;
+                this.tabControl.SelectedIndex--;
+                this.tabControl.TabPages.RemoveAt(badTab);
+                throw loadEx;
             }
             rtb.Tag = rtb.Text;
             this.openedFileInTab[this.tabControl.SelectedTab.Text] = new StreamReader(wholeFileName);
@@ -1240,7 +1251,7 @@ namespace RTFPad
                 if (this.fileTypeInTab[this.tabControl.SelectedTab.Text] == 2)
                 {
                     this.toolStripCBoxFont.Visible      = false;
-                    this.toolStripCBoxFontSize.Visible  = false;
+                    //this.toolStripCBoxFontSize.Visible  = false;
                     this.toolStripFontColor.Visible     = false;
                     this.toolStripBold.Visible          = false;
                     this.toolStripItalic.Visible        = false;
