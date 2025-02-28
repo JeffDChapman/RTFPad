@@ -27,6 +27,7 @@ namespace RTFPad
         private string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
         private string recentEditPath = @"recentEdits.txt";
         private string autoLoadFile = @"autoload.txt";
+        private string MRUhistoryFile = @"mruHistory.txt";
         #endregion
 
         #region constructor
@@ -38,7 +39,7 @@ namespace RTFPad
             ownerMutex = new System.Threading.Mutex(true, "RTFPad", out ok);
             if (!ok)
             {
-                string chkFileName = strExeFilePath + autoLoadFile;
+                string chkFileName = strExeFilePath.Replace(".exe", "_") + autoLoadFile;
                 File.AppendAllText(chkFileName, startdoc + "\n\r");
                 this.Close();
                 Application.Exit();
@@ -72,22 +73,48 @@ namespace RTFPad
                 Color c = entry.BackColor;
                 int Luminance = (int)(0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B);
                 if (Luminance > 50)
-                {
-                    entry.ForeColor = Color.Black;
-                }
+                { entry.ForeColor = Color.Black; }
                 else
-                {
-                    entry.ForeColor = Color.White;
-                }
-
+                { entry.ForeColor = Color.White; }
             }
-            try { recentlyEdited = File.ReadAllText(strExeFilePath + recentEditPath); }
+            try { recentlyEdited = File.ReadAllText(strExeFilePath.Replace(".exe", "_") + recentEditPath); }
             catch { }
             this.newTab();
             this.rtb_SelectionChanged(this, new EventArgs());
             this.toolStripCBoxFont.Text = "Calibri";
             this.toolStripCBoxFontSize.Text = "20";
             this.Height = 750;
+            SetupMRUlist();
+        }
+
+        private void SetupMRUlist()
+        {
+            this.menuRecent.DropDownItems.Clear();
+            int NumOfMRU = 0;
+            string MRUhistoryFileName = strExeFilePath.Replace(".exe", "_") + MRUhistoryFile;
+            if (!File.Exists(MRUhistoryFileName)) { return; }
+            string[] MRUFileList = File.ReadAllLines(MRUhistoryFileName);
+            int listCount = MRUFileList.Length;
+            for (int i = listCount - 1; i >= 0; i--) 
+            {
+                if (NumOfMRU > 5) { return; }
+                if (MRUFileList[i] == "") { continue; }
+                string[] MRUcomponents = MRUFileList[i].Split(new char[] { ';' });
+                bool hadMatch = false;
+                foreach(ToolStripItem aRecentFile in this.menuRecent.DropDownItems)
+                { 
+                    if (aRecentFile.Text == MRUcomponents[0]) 
+                        { hadMatch = true; break; }
+                }
+
+                if (hadMatch) { continue; }
+                ToolStripMenuItem newMRUitem = new ToolStripMenuItem();
+                newMRUitem.Text = MRUcomponents[0];
+                newMRUitem.Tag = MRUcomponents[1];
+                newMRUitem.Click += new System.EventHandler(this.menuRecentLoad_Click);
+                this.menuRecent.DropDownItems.Add(newMRUitem);
+                NumOfMRU++;
+            }
         }
 
         private void SetupTheFonts()
@@ -860,12 +887,17 @@ namespace RTFPad
 
             string tabKey = this.tabControl.SelectedTab.Text;
 
-            // add to MRU list
-            ToolStripMenuItem newMRUitem = new ToolStripMenuItem();
-            newMRUitem.Text = tabKey;
-            newMRUitem.Tag = this.fileNameInTab[tabKey];
-            newMRUitem.Click += new System.EventHandler(this.menuRecentLoad_Click);
-            this.menuRecent.DropDownItems.Insert(0, newMRUitem);
+            // add to MRU list and history
+            if (this.tabControl.SelectedTab.Controls[0].Text != "")
+            {
+                ToolStripMenuItem newMRUitem = new ToolStripMenuItem();
+                newMRUitem.Text = tabKey;
+                newMRUitem.Tag = this.fileNameInTab[tabKey];
+                newMRUitem.Click += new System.EventHandler(this.menuRecentLoad_Click);
+                this.menuRecent.DropDownItems.Insert(0, newMRUitem);
+                string MRUhistoryFileName = strExeFilePath.Replace(".exe", "_") + MRUhistoryFile;
+                File.AppendAllText(MRUhistoryFileName, tabKey + ";" + this.fileNameInTab[tabKey] + "\n\r");
+            }
 
             // remove tab info and tab
             this.fileNameInTab.Remove(tabKey);
@@ -1037,7 +1069,7 @@ namespace RTFPad
 
         private void timerAutoloadFile_Tick(object sender, EventArgs e)
         {
-            string chkFileName = strExeFilePath + autoLoadFile;
+            string chkFileName = strExeFilePath.Replace(".exe", "_") + autoLoadFile;
             if (!File.Exists(chkFileName)) { return; }
             string[] loadFileList = File.ReadAllLines(chkFileName);
             File.Delete(chkFileName);
@@ -1309,13 +1341,18 @@ namespace RTFPad
 
             int maxEdLen = recentlyEdited.Length;
             if (maxEdLen > 500) { maxEdLen = 500; }
-            File.WriteAllText(strExeFilePath + recentEditPath, recentlyEdited.Substring(0, maxEdLen));
+            File.WriteAllText(strExeFilePath.Replace(".exe", "_") + recentEditPath, 
+                recentlyEdited.Substring(0, maxEdLen));
+
+            string MRUhistoryFileName = strExeFilePath.Replace(".exe", "_") + MRUhistoryFile;
 
             for (int i = this.tabControl.TabCount; i > 0; --i)
             {
                 this.tabControl.SelectedIndex = i;
-                RichTextBox rtb = (RichTextBox)this.tabControl.TabPages[i - 1].Controls[0];
+                string tabKey = this.tabControl.SelectedTab.Text;
+                File.AppendAllText(MRUhistoryFileName, tabKey + ";" + this.fileNameInTab[tabKey] + "\n\r");
 
+                RichTextBox rtb = (RichTextBox)this.tabControl.TabPages[i - 1].Controls[0];
                 if (rtb.Text != rtb.Tag.ToString())
                 {
                     DialogResult result = MessageBox.Show("Do you wish to save changes to " + this.tabControl.SelectedTab.Text + " ?",
