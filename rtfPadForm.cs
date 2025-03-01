@@ -471,11 +471,13 @@ namespace RTFPad
             {
                 rtb.WordWrap = false;
                 menuViewWordWrap.Checked = false;
+                rtb.ScrollBars = RichTextBoxScrollBars.ForcedBoth;
             }
             else
             {
                 rtb.WordWrap = true;
                 menuViewWordWrap.Checked = true;
+                rtb.ScrollBars = RichTextBoxScrollBars.ForcedVertical;
             }
         }
         #endregion
@@ -862,12 +864,14 @@ namespace RTFPad
                 rtb.Dock = DockStyle.Fill;
                 rtb.Multiline = true;
                 rtb.WordWrap = true;
-                rtb.ScrollBars = RichTextBoxScrollBars.Both;
+                //rtb.ScrollBars = RichTextBoxScrollBars.Both;
+                rtb.ScrollBars = RichTextBoxScrollBars.ForcedVertical;
                 rtb.EnableAutoDragDrop = true;
                 rtb.AcceptsTab = true;
                 rtb.AutoWordSelection = true;
                 rtb.DetectUrls = true;
                 rtb.HideSelection = false;
+                rtb.ShowSelectionMargin = true;
                 rtb.Tag = rtb.Text;
 
                 rtb.SelectionChanged += new EventHandler(rtb_SelectionChanged);
