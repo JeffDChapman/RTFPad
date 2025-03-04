@@ -18,6 +18,7 @@ namespace RTFPad
         private Dictionary<string, int> selectedColorInTab = new Dictionary<string, int>();
         private Dictionary<string, string> textToFindInTab = new Dictionary<string, string>();
         private Dictionary<string, bool> matchCaseInTab = new Dictionary<string, bool>();
+        private Dictionary<string, bool> tabIsReadOnly = new Dictionary<string, bool>();
         protected internal TabControl tabControl = new TabControl();
         private FontFamily[] fontList;
         private string[] colorList = System.Enum.GetNames(typeof(KnownColor));
@@ -196,12 +197,7 @@ namespace RTFPad
             if (value != null)
                 this.openedFileInTab[this.tabControl.SelectedTab.Text].Close();
 
-            this.fileTypeInTab.Remove(this.tabControl.SelectedTab.Text);
-            this.fileNameInTab.Remove(this.tabControl.SelectedTab.Text);
-            this.openedFileInTab.Remove(this.tabControl.SelectedTab.Text);
-            this.selectedColorInTab.Remove(this.tabControl.SelectedTab.Text);
-            this.textToFindInTab.Remove(this.tabControl.SelectedTab.Text);
-            this.matchCaseInTab.Remove(this.tabControl.SelectedTab.Text);
+            ClearTabInfo(this.tabControl.SelectedTab.Text);
 
             this.tabControl.SelectedTab.Text = FileToOpen;
             int fileType = 0;
@@ -219,7 +215,7 @@ namespace RTFPad
                     fileType = 2;
                 }
             }
-            catch (Exception loadEx) 
+            catch (Exception loadEx)
             {
                 int badTab = this.tabControl.SelectedIndex;
                 this.tabControl.SelectedIndex--;
@@ -238,14 +234,30 @@ namespace RTFPad
             {
                 btnEditDocument.Visible = true;
                 rtb.ReadOnly = true;
+                this.tabIsReadOnly[this.tabControl.SelectedTab.Text] = true;
                 this.tabControl.SelectedTab.BackColor = Color.Blue;
+                this.menuFileSave.Enabled = false;
+                this.menuFileSaveAs.Enabled = false;
+                this.toolStripSave.Enabled = false;
             }
             else
             {
                 string backupFileName = wholeFileName.Substring(0, wholeFileName.LastIndexOf('.')) + ".bak";
                 File.Copy(wholeFileName, backupFileName, true);
+                this.tabIsReadOnly[this.tabControl.SelectedTab.Text] = false;
             }
             if (rtb.TextLength > 1000) { btnToBottom.Visible = true; }
+        }
+
+        private void ClearTabInfo(string tabName)
+        {
+            this.fileTypeInTab.Remove(tabName);
+            this.fileNameInTab.Remove(tabName);
+            this.openedFileInTab.Remove(tabName);
+            this.selectedColorInTab.Remove(tabName);
+            this.textToFindInTab.Remove(tabName);
+            this.matchCaseInTab.Remove(tabName);
+            this.tabIsReadOnly.Remove(tabName);
         }
 
         /* File Save As */
@@ -259,12 +271,7 @@ namespace RTFPad
                 if (value != null)
                     this.openedFileInTab[this.tabControl.SelectedTab.Text].Close();
 
-                this.fileTypeInTab.Remove(this.tabControl.SelectedTab.Text);
-                this.fileNameInTab.Remove(this.tabControl.SelectedTab.Text);
-                this.openedFileInTab.Remove(this.tabControl.SelectedTab.Text);
-                this.selectedColorInTab.Remove(this.tabControl.SelectedTab.Text);
-                this.textToFindInTab.Remove(this.tabControl.SelectedTab.Text);
-                this.matchCaseInTab.Remove(this.tabControl.SelectedTab.Text);
+                ClearTabInfo(this.tabControl.SelectedTab.Text);
 
                 this.tabControl.SelectedTab.Text = this.dialogSave.FileName.Substring(this.dialogSave.FileName.LastIndexOf('\\') + 1);
 
@@ -915,13 +922,7 @@ namespace RTFPad
             }
 
             // remove tab info and tab
-            this.fileNameInTab.Remove(tabKey);
-            this.fileTypeInTab.Remove(tabKey);
-            this.openedFileInTab.Remove(tabKey);
-            this.selectedColorInTab.Remove(tabKey);
-            this.textToFindInTab.Remove(tabKey);
-            this.matchCaseInTab.Remove(tabKey);
-            //this.tabControl.TabPages.RemoveByKey("tab " + this.tabControl.SelectedIndex.ToString());
+            ClearTabInfo(tabKey);
             this.tabControl.TabPages.RemoveAt(this.tabControl.SelectedIndex);
         }
 
@@ -1345,6 +1346,10 @@ namespace RTFPad
             recentlyEdited = wholeFileName + ";" + recentlyEdited;
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
             rtb.ReadOnly = false;
+            this.tabIsReadOnly[this.tabControl.SelectedTab.Text] = false;
+            this.menuFileSave.Enabled = true;
+            this.menuFileSaveAs.Enabled = true;
+            this.toolStripSave.Enabled = true;
             this.tabControl.SelectedTab.BackColor = SystemColors.Control;
             string backupFileName = wholeFileName.Substring(0, wholeFileName.LastIndexOf('.')) + ".bak";
             File.Copy(wholeFileName, backupFileName, true);
