@@ -886,6 +886,7 @@ namespace RTFPad
                 rtb.KeyDown += new KeyEventHandler(rtb_KeyDown);
                 this.Text = "RTFPad - " + this.tabControl.SelectedTab.Text;
                 fileTypeInTab[this.tabControl.SelectedTab.Text] = 1;
+                tabIsReadOnly[this.tabControl.SelectedTab.Text] = false;
                 changeUIState_CloseCurrentTabButton();
                 tabControl_SelectedIndexChanged(this, new EventArgs());
                 this.ActiveControl = rtb;
@@ -1302,6 +1303,14 @@ namespace RTFPad
                 this.toolStripAlignCenter.Checked   = false;
                 this.toolStripAlignRight.Checked    = false;
             }
+
+            try
+            {
+                if (this.tabIsReadOnly[this.tabControl.SelectedTab.Text] == true)
+                { btnEditDocument.Visible = true; }
+                else { btnEditDocument.Visible = false; }
+            }
+            catch { }
         }
 
         /* Checks if the mouse is over the tab header
