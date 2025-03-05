@@ -902,7 +902,9 @@ namespace RTFPad
          */
         private void closeTab()
         {
-            if (this.tabControl.TabCount <= 0)
+            int rtfTabCount = this.tabControl.TabCount;
+            int tabFormerLoc = this.tabControl.SelectedIndex;
+            if (rtfTabCount <= 0)
             {
                 MessageBox.Show("There are no tabs", "Cannot Close Tab", MessageBoxButtons.OK);
                 return;
@@ -925,6 +927,11 @@ namespace RTFPad
             // remove tab info and tab
             ClearTabInfo(tabKey);
             this.tabControl.TabPages.RemoveAt(this.tabControl.SelectedIndex);
+
+            // reposition to last tab, or one to the right of former tab
+            int newTabIdx = tabFormerLoc;
+            if (tabFormerLoc > rtfTabCount - 2) { newTabIdx = rtfTabCount - 2; }
+            this.tabControl.SelectedIndex = newTabIdx;
         }
 
         /* Function which finds the first occurence of textToFind in the textbox
