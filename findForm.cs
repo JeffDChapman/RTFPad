@@ -1,9 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 
@@ -30,9 +25,10 @@ namespace RTFPad
         private void buttonFind_Click(object sender, EventArgs e)
         {
             if (((rtfPadForm)this.Owner).tabControl.TabCount <= 0) return;
-            if (((rtfPadForm)this.Owner).findText(this.textBoxFind.Text,
-                                                        this.radioButtonDown.Checked,
-                                                        this.checkBoxMatchCase.Checked) == false)
+            if (((rtfPadForm)this.Owner).findTextWhole(this.textBoxFind.Text,
+                                                  this.radioButtonDown.Checked,
+                                                  this.checkBoxMatchCase.Checked,
+                                                  this.checkBoxWholeWord.Checked) == false)
             {
                 MessageBox.Show("Can't find \'" + this.textBoxFind.Text + "\'", "Find",
                                 MessageBoxButtons.OK,

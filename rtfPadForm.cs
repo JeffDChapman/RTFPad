@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using PrintPreviewRichTextBox;
+using System.Threading;
 
 namespace RTFPad
 {
@@ -20,44 +18,116 @@ namespace RTFPad
         private Dictionary<string, int> selectedColorInTab = new Dictionary<string, int>();
         private Dictionary<string, string> textToFindInTab = new Dictionary<string, string>();
         private Dictionary<string, bool> matchCaseInTab = new Dictionary<string, bool>();
+        private Dictionary<string, bool> tabIsReadOnly = new Dictionary<string, bool>();
         protected internal TabControl tabControl = new TabControl();
         private FontFamily[] fontList;
         private string[] colorList = System.Enum.GetNames(typeof(KnownColor));
+        private string punctList = ",. :;'\"?!\n\r";
+        private bool pastEOD;
+        private string recentlyEdited = "";
+        private string strExeFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        private string recentEditPath = @"recentEdits.txt";
+        private string autoLoadFile = @"autoload.txt";
+        private string MRUhistoryFile = @"mruHistory.txt";
         #endregion
 
         #region constructor
+        public rtfPadForm(string startdoc)
+        {
+            InitializeComponent();
+            bool ok;
+            Mutex ownerMutex;
+            ownerMutex = new System.Threading.Mutex(true, "RTFPad", out ok);
+            if (!ok)
+            {
+                string chkFileName = strExeFilePath.Replace(".exe", "_") + autoLoadFile;
+                File.AppendAllText(chkFileName, startdoc + "\n\r");
+                this.Close();
+                Application.Exit();
+                return;
+            }
+            GC.KeepAlive(ownerMutex);
+            SetupTheForm();
+            LoadFileFromParm(startdoc);
+        }
+
+        private void LoadFileFromParm(string startdoc)
+        {
+            int LastSlash = startdoc.LastIndexOf('\\');
+            string FileToOpen = startdoc.Substring(LastSlash + 1);
+            try { OpenFileNamed(this, null, FileToOpen, startdoc); }
+            catch (Exception exception) { showStdErr(exception); }
+        }
+
         public rtfPadForm()
         {
             InitializeComponent();
-            this.fontList = FontFamily.Families;
-            foreach (FontFamily font in fontList)
-            {
-                this.toolStripCBoxFont.Items.Add(font.Name);
-            }
-            foreach (string color in colorList)
-            {
-                Color boja = Color.FromKnownColor((KnownColor)System.Enum.Parse(typeof(KnownColor), color));
-                if (boja.IsSystemColor == false && boja.Name != Color.Transparent.Name)
-                    this.toolStripFontColor.DropDownItems.Add(color);
-                    
-            }
+            SetupTheForm();
+        }
+
+        private void SetupTheForm()
+        {
+            SetupTheFonts();
             foreach (ToolStripDropDownItem entry in this.toolStripFontColor.DropDownItems)
             {
                 entry.BackColor = Color.FromKnownColor((KnownColor)System.Enum.Parse(typeof(KnownColor), entry.Text));
                 Color c = entry.BackColor;
                 int Luminance = (int)(0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B);
                 if (Luminance > 50)
-                {
-                    entry.ForeColor = Color.Black;
-                }
+                { entry.ForeColor = Color.Black; }
                 else
-                {
-                    entry.ForeColor = Color.White;
-                }
-
+                { entry.ForeColor = Color.White; }
             }
+            try { recentlyEdited = File.ReadAllText(strExeFilePath.Replace(".exe", "_") + recentEditPath); }
+            catch { }
             this.newTab();
             this.rtb_SelectionChanged(this, new EventArgs());
+            this.toolStripCBoxFont.Text = "Calibri";
+            this.toolStripCBoxFontSize.Text = "20";
+            this.Height = 750;
+            SetupMRUlist();
+        }
+
+        private void SetupMRUlist()
+        {
+            this.menuRecent.DropDownItems.Clear();
+            int NumOfMRU = 0;
+            string MRUhistoryFileName = strExeFilePath.Replace(".exe", "_") + MRUhistoryFile;
+            if (!File.Exists(MRUhistoryFileName)) { return; }
+            string[] MRUFileList = File.ReadAllLines(MRUhistoryFileName);
+            int listCount = MRUFileList.Length;
+            for (int i = listCount - 1; i >= 0; i--) 
+            {
+                if (NumOfMRU > 5) { return; }
+                if (MRUFileList[i] == "") { continue; }
+                string[] MRUcomponents = MRUFileList[i].Split(new char[] { ';' });
+                bool hadMatch = false;
+                foreach(ToolStripItem aRecentFile in this.menuRecent.DropDownItems)
+                { 
+                    if (aRecentFile.Text == MRUcomponents[0]) 
+                        { hadMatch = true; break; }
+                }
+
+                if (hadMatch) { continue; }
+                ToolStripMenuItem newMRUitem = new ToolStripMenuItem();
+                newMRUitem.Text = MRUcomponents[0];
+                newMRUitem.Tag = MRUcomponents[1];
+                newMRUitem.Click += new System.EventHandler(this.menuRecentLoad_Click);
+                this.menuRecent.DropDownItems.Add(newMRUitem);
+                NumOfMRU++;
+            }
+        }
+
+        private void SetupTheFonts()
+        {
+            this.fontList = FontFamily.Families;
+            object[] fontObjects = new object[fontList.Length];
+            int fontIdx = 0;   
+            foreach (FontFamily font in fontList)
+            {
+                fontObjects[fontIdx++] = font.Name;
+            }
+            this.toolStripCBoxFont.Items.AddRange(fontObjects);
         }
         #endregion
 
@@ -66,29 +136,6 @@ namespace RTFPad
         /* File Exit */
         private void menuFileExit_Click(object sender, EventArgs e)
         {
-            if (this.tabControl.TabCount <= 0) return;
-
-            for (int i = this.tabControl.TabCount; i >= 0; --i)
-            {
-                this.tabControl.SelectedIndex = i;
-                RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
-
-                if (rtb.Text != (string)rtb.Tag)
-                {
-
-                    DialogResult result = MessageBox.Show("Do you wish to save changes to " + this.tabControl.SelectedTab.Text + " ?",
-                                     "RTFPad", MessageBoxButtons.YesNoCancel);
-
-                    if (result == DialogResult.Yes)
-                    {
-                        menuFileSave_Click(sender, e);
-                    }
-                    else if (result == DialogResult.Cancel)
-                    {
-                        return;
-                    }
-                }
-            }
             this.Close();
         }
 
@@ -103,70 +150,114 @@ namespace RTFPad
         {
             if (this.dialogOpen.ShowDialog() == DialogResult.OK)
             {
-                bool exists = false;
-                for (int i = 0; i < this.tabControl.TabCount; i++)
+                string FileToOpen = this.dialogOpen.SafeFileName;
+                string wholeFileName = this.dialogOpen.FileName;
+                try { OpenFileNamed(sender, e, FileToOpen, wholeFileName); }
+                catch (Exception exception) { showStdErr(exception); }
+            }
+        }
+
+        private void OpenFileNamed(object sender, EventArgs e, string FileToOpen, string wholeFileName)
+        {
+            bool exists = false;
+            for (int i = 0; i < this.tabControl.TabCount; i++)
+            {
+                if (this.tabControl.TabPages[i].Text == FileToOpen)
                 {
-                    if (this.tabControl.TabPages[i].Text == this.dialogOpen.SafeFileName)
-                    {
-                        exists = true;
-                        this.tabControl.SelectedIndex = i;
-                    }
-                }
-
-                if (exists == false)
-                {
-                    if (this.tabControl.TabCount < MAX_TABS) menuFileNew_Click(sender, e);
-                    else
-                    {
-                        DialogResult mBoxResult = MessageBox.Show("Max tab count reached! Do you wish to open the file in the current tab?",
-                                                                    "RTFPad", MessageBoxButtons.YesNoCancel);
-                        switch (mBoxResult)
-                        {
-                            case DialogResult.Yes: this.closeTab();
-                                                   this.newTab();
-                                                   break;
-                            case DialogResult.No: MessageBox.Show("Close a tab", "RTFPad", MessageBoxButtons.OK);
-                                                  return; 
-                            case DialogResult.Cancel: return;
-                        }
-
-                    }
-                    RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
-
-                    StreamReader value;
-                    openedFileInTab.TryGetValue(this.tabControl.SelectedTab.Text, out value);
-                    if (value != null)
-                        this.openedFileInTab[this.tabControl.SelectedTab.Text].Close();
-
-                    this.fileTypeInTab.Remove(this.tabControl.SelectedTab.Text);
-                    this.fileNameInTab.Remove(this.tabControl.SelectedTab.Text);
-                    this.openedFileInTab.Remove(this.tabControl.SelectedTab.Text);
-                    this.selectedColorInTab.Remove(this.tabControl.SelectedTab.Text);
-                    this.textToFindInTab.Remove(this.tabControl.SelectedTab.Text);
-                    this.matchCaseInTab.Remove(this.tabControl.SelectedTab.Text);
-
-                    this.tabControl.SelectedTab.Text = this.dialogOpen.SafeFileName;
-                    int fileType = 0;
-                    if (this.dialogOpen.FilterIndex == 1)
-                    {
-                        rtb.LoadFile(this.dialogOpen.FileName, RichTextBoxStreamType.RichText);
-                        fileType = 1;
-                    }
-                    else
-                    {
-                        rtb.LoadFile(this.dialogOpen.FileName, RichTextBoxStreamType.PlainText);
-                        fileType = 2;
-                    }
-                    rtb.Tag = rtb.Text;
-                    this.openedFileInTab[this.tabControl.SelectedTab.Text] = new StreamReader(this.dialogOpen.FileName);
-                    this.tabControl.SelectedTab.Text                        = this.dialogOpen.SafeFileName;
-                    this.fileNameInTab[this.tabControl.SelectedTab.Text]    = this.dialogOpen.FileName;
-                    this.Text                                               = "RTFPad - " + this.tabControl.SelectedTab.Text;
-                    this.fileTypeInTab[this.tabControl.SelectedTab.Text]   = fileType;
-                    this.rtb_SelectionChanged(sender, e);
-                    this.tabControl_SelectedIndexChanged(sender, e);
+                    exists = true;
+                    this.tabControl.SelectedIndex = i;
                 }
             }
+
+            if (exists) { return; }
+
+            if (this.tabControl.TabCount < MAX_TABS) this.newTab();
+            else
+            {
+                DialogResult mBoxResult = MessageBox.Show("Max tab count reached! Do you wish to open the file in the current tab?",
+                                                            "RTFPad", MessageBoxButtons.YesNoCancel);
+                switch (mBoxResult)
+                {
+                    case DialogResult.Yes:
+                        this.closeTab();
+                        this.newTab();
+                        break;
+                    case DialogResult.No:
+                        MessageBox.Show("Close a tab", "RTFPad", MessageBoxButtons.OK);
+                        return;
+                    case DialogResult.Cancel: return;
+                }
+
+            }
+
+            RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+
+            StreamReader value;
+            openedFileInTab.TryGetValue(this.tabControl.SelectedTab.Text, out value);
+            if (value != null)
+                this.openedFileInTab[this.tabControl.SelectedTab.Text].Close();
+
+            ClearTabInfo(this.tabControl.SelectedTab.Text);
+
+            this.tabControl.SelectedTab.Text = FileToOpen;
+            int fileType = 0;
+            string exten = wholeFileName.Substring(wholeFileName.LastIndexOf('.') + 1);
+            try
+            {
+                if (exten.ToLower() == "rtf")
+                {
+                    rtb.LoadFile(wholeFileName, RichTextBoxStreamType.RichText);
+                    fileType = 1;
+                }
+                else
+                {
+                    rtb.LoadFile(wholeFileName, RichTextBoxStreamType.PlainText);
+                    fileType = 2;
+                }
+            }
+            catch (Exception loadEx)
+            {
+                int badTab = this.tabControl.SelectedIndex;
+                this.tabControl.SelectedIndex--;
+                this.tabControl.TabPages.RemoveAt(badTab);
+                throw loadEx;
+            }
+            rtb.Tag = rtb.Text;
+            this.openedFileInTab[this.tabControl.SelectedTab.Text] = new StreamReader(wholeFileName);
+            this.tabControl.SelectedTab.Text = FileToOpen;
+            this.fileNameInTab[this.tabControl.SelectedTab.Text] = wholeFileName;
+            this.Text = "RTFPad - " + this.tabControl.SelectedTab.Text;
+            this.fileTypeInTab[this.tabControl.SelectedTab.Text] = fileType;
+            this.rtb_SelectionChanged(sender, e);
+            this.tabControl_SelectedIndexChanged(sender, e);
+            if (!recentlyEdited.Contains(wholeFileName))
+            {
+                btnEditDocument.Visible = true;
+                rtb.ReadOnly = true;
+                this.tabIsReadOnly[this.tabControl.SelectedTab.Text] = true;
+                this.tabControl.SelectedTab.BackColor = Color.Blue;
+                this.menuFileSave.Enabled = false;
+                this.menuFileSaveAs.Enabled = false;
+                this.toolStripSave.Enabled = false;
+            }
+            else
+            {
+                string backupFileName = wholeFileName.Substring(0, wholeFileName.LastIndexOf('.')) + ".bak";
+                File.Copy(wholeFileName, backupFileName, true);
+                this.tabIsReadOnly[this.tabControl.SelectedTab.Text] = false;
+            }
+            if (rtb.TextLength > 1000) { btnToBottom.Visible = true; }
+        }
+
+        private void ClearTabInfo(string tabName)
+        {
+            this.fileTypeInTab.Remove(tabName);
+            this.fileNameInTab.Remove(tabName);
+            this.openedFileInTab.Remove(tabName);
+            this.selectedColorInTab.Remove(tabName);
+            this.textToFindInTab.Remove(tabName);
+            this.matchCaseInTab.Remove(tabName);
+            this.tabIsReadOnly.Remove(tabName);
         }
 
         /* File Save As */
@@ -180,12 +271,7 @@ namespace RTFPad
                 if (value != null)
                     this.openedFileInTab[this.tabControl.SelectedTab.Text].Close();
 
-                this.fileTypeInTab.Remove(this.tabControl.SelectedTab.Text);
-                this.fileNameInTab.Remove(this.tabControl.SelectedTab.Text);
-                this.openedFileInTab.Remove(this.tabControl.SelectedTab.Text);
-                this.selectedColorInTab.Remove(this.tabControl.SelectedTab.Text);
-                this.textToFindInTab.Remove(this.tabControl.SelectedTab.Text);
-                this.matchCaseInTab.Remove(this.tabControl.SelectedTab.Text);
+                ClearTabInfo(this.tabControl.SelectedTab.Text);
 
                 this.tabControl.SelectedTab.Text = this.dialogSave.FileName.Substring(this.dialogSave.FileName.LastIndexOf('\\') + 1);
 
@@ -214,6 +300,7 @@ namespace RTFPad
         private void menuFileSave_Click(object sender, EventArgs e)
         {
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+            rtb.Tag = rtb.Text;
             string currentTabKey = this.tabControl.SelectedTab.Text;
             StreamReader value;
             this.openedFileInTab.TryGetValue(currentTabKey, out value);
@@ -391,11 +478,13 @@ namespace RTFPad
             {
                 rtb.WordWrap = false;
                 menuViewWordWrap.Checked = false;
+                rtb.ScrollBars = RichTextBoxScrollBars.ForcedBoth;
             }
             else
             {
                 rtb.WordWrap = true;
                 menuViewWordWrap.Checked = true;
+                rtb.ScrollBars = RichTextBoxScrollBars.ForcedVertical;
             }
         }
         #endregion
@@ -540,23 +629,16 @@ namespace RTFPad
         }
 
         /* Tool Strip Color */
-        private void toolStripFontColor_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        private void toolStripFontColor_Click(object sender, EventArgs e)
         {
-            if (this.tabControl.TabCount <= 0) return;
+            ColorDialog MyDialog = new ColorDialog();
+            MyDialog.Color = Color.Black;
 
-            RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
-            rtb.SelectionColor = Color.FromKnownColor((KnownColor)System.Enum.Parse(typeof(KnownColor), e.ClickedItem.Text));
-
-            if (!this.selectedColorInTab.ContainsKey(this.tabControl.SelectedTab.Text))
-                this.selectedColorInTab.Add(this.tabControl.SelectedTab.Text, default(int));
-
-            int index;
-            this.selectedColorInTab.TryGetValue(this.tabControl.SelectedTab.Text, out index);
-
-            ((ToolStripMenuItem)this.toolStripFontColor.DropDownItems[index]).Checked = false;
-            this.selectedColorInTab[this.tabControl.SelectedTab.Text] = this.toolStripFontColor.
-                                                                        DropDownItems.IndexOf((ToolStripMenuItem)e.ClickedItem);
-            ((ToolStripMenuItem)e.ClickedItem).Checked = true;
+            if (MyDialog.ShowDialog() == DialogResult.OK)
+            {
+                RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+                rtb.SelectionColor = MyDialog.Color;
+            }
         }
 
         /* Tool Strip Undo */
@@ -789,12 +871,14 @@ namespace RTFPad
                 rtb.Dock = DockStyle.Fill;
                 rtb.Multiline = true;
                 rtb.WordWrap = true;
-                rtb.ScrollBars = RichTextBoxScrollBars.Both;
+                //rtb.ScrollBars = RichTextBoxScrollBars.Both;
+                rtb.ScrollBars = RichTextBoxScrollBars.ForcedVertical;
                 rtb.EnableAutoDragDrop = true;
                 rtb.AcceptsTab = true;
                 rtb.AutoWordSelection = true;
                 rtb.DetectUrls = true;
                 rtb.HideSelection = false;
+                rtb.ShowSelectionMargin = true;
                 rtb.Tag = rtb.Text;
 
                 rtb.SelectionChanged += new EventHandler(rtb_SelectionChanged);
@@ -802,6 +886,7 @@ namespace RTFPad
                 rtb.KeyDown += new KeyEventHandler(rtb_KeyDown);
                 this.Text = "RTFPad - " + this.tabControl.SelectedTab.Text;
                 fileTypeInTab[this.tabControl.SelectedTab.Text] = 1;
+                tabIsReadOnly[this.tabControl.SelectedTab.Text] = false;
                 changeUIState_CloseCurrentTabButton();
                 tabControl_SelectedIndexChanged(this, new EventArgs());
                 this.ActiveControl = rtb;
@@ -817,26 +902,60 @@ namespace RTFPad
          */
         private void closeTab()
         {
-            if (this.tabControl.TabCount <= 0)
+            int rtfTabCount = this.tabControl.TabCount;
+            int tabFormerLoc = this.tabControl.SelectedIndex;
+            if (rtfTabCount <= 0)
             {
                 MessageBox.Show("There are no tabs", "Cannot Close Tab", MessageBoxButtons.OK);
                 return;
             }
+
             string tabKey = this.tabControl.SelectedTab.Text;
-            this.fileNameInTab.Remove(tabKey);
-            this.fileTypeInTab.Remove(tabKey);
-            this.openedFileInTab.Remove(tabKey);
-            this.selectedColorInTab.Remove(tabKey);
-            this.textToFindInTab.Remove(tabKey);
-            this.matchCaseInTab.Remove(tabKey);
-            //this.tabControl.TabPages.RemoveByKey("tab " + this.tabControl.SelectedIndex.ToString());
+
+            // add to MRU list and history
+            if (this.tabControl.SelectedTab.Controls[0].Text != "")
+            {
+                ToolStripMenuItem newMRUitem = new ToolStripMenuItem();
+                newMRUitem.Text = tabKey;
+                newMRUitem.Tag = this.fileNameInTab[tabKey];
+                newMRUitem.Click += new System.EventHandler(this.menuRecentLoad_Click);
+                this.menuRecent.DropDownItems.Insert(0, newMRUitem);
+                string MRUhistoryFileName = strExeFilePath.Replace(".exe", "_") + MRUhistoryFile;
+                File.AppendAllText(MRUhistoryFileName, tabKey + ";" + this.fileNameInTab[tabKey] + "\n\r");
+            }
+
+            // remove tab info and tab
+            ClearTabInfo(tabKey);
             this.tabControl.TabPages.RemoveAt(this.tabControl.SelectedIndex);
+
+            // reposition to last tab, or one to the right of former tab
+            int newTabIdx = tabFormerLoc;
+            if (tabFormerLoc > rtfTabCount - 2) { newTabIdx = rtfTabCount - 2; }
+            this.tabControl.SelectedIndex = newTabIdx;
         }
 
         /* Function which finds the first occurence of textToFind in the textbox
          * Used by: Find, Find Next, Replace, Replace All
          */
+
         protected internal bool findText(string textToFind, bool searchDirectionDown, bool matchCase)
+        {
+            return findTextWhole(textToFind,  searchDirectionDown,  matchCase, false);
+        }
+
+        protected internal bool findTextWhole(string textToFind, bool searchDirectionDown, bool matchCase, bool wholeWord)
+        {   if (!wholeWord)
+                { return BasicFind(textToFind, searchDirectionDown, matchCase, wholeWord); }
+            pastEOD = false;
+            while (!pastEOD)
+            {
+                bool findResult = BasicFind(textToFind, searchDirectionDown, matchCase, wholeWord);
+                if (findResult) {return true;}
+            }
+            return false;
+        }
+
+        private bool BasicFind(string textToFind, bool searchDirectionDown, bool matchCase, bool wholeWord)
         {
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
             StringComparison comparator = matchCase ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
@@ -859,7 +978,29 @@ namespace RTFPad
             {
                 startIndex = rtb.Text.LastIndexOf(textToFind, rtb.SelectionStart, comparator);
             }
-            if (startIndex == -1 || startIndex >= rtb.Text.Length) return false;
+            if (startIndex == -1 || startIndex >= rtb.Text.Length)
+            {
+                pastEOD = true;
+                return false;
+            }
+            if (wholeWord)
+            {
+                string checkpunct;
+                try { checkpunct = rtb.Text.Substring(startIndex - 1, 1); }
+                catch { checkpunct = " "; }
+                if (!punctList.Contains(checkpunct)) 
+                { 
+                    rtb.Select(startIndex, length); 
+                    return false; 
+                }
+                try { checkpunct = rtb.Text.Substring(startIndex + length, 1); }
+                catch { checkpunct = " "; }
+                if (!punctList.Contains(checkpunct))
+                {
+                    rtb.Select(startIndex, length);
+                    return false;
+                }
+            }
             rtb.Select(startIndex, length);
             rtb.ScrollToCaret();
             return true;
@@ -868,12 +1009,12 @@ namespace RTFPad
         /* Function which replaces the first occurence of textToReplace with replaceWith
          * Used by: Replace, Replace All
          */
-        protected internal bool replaceText(string textToReplace, string replaceWith, bool matchCase)
+        protected internal bool replaceText(string textToReplace, string replaceWith, bool matchCase, bool matchword)
         {
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
             if (rtb.SelectedText.Length == 0 || rtb.SelectedText.ToLower() != textToReplace.ToLower())
             {
-                return findText(textToReplace, true, matchCase);
+                return findTextWhole(textToReplace, true, matchCase, matchword);
             }
             else
             {
@@ -885,14 +1026,14 @@ namespace RTFPad
         /* Replaces all matching text with another
          * Used by: Replace All
          */
-        protected internal void replaceAllInText(string textToReplace, string replaceWith, bool matchCase)
+        protected internal void replaceAllInText(string textToReplace, string replaceWith, bool matchCase, bool matchWord)
         {
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
             rtb.SelectionStart = 0;
             rtb.SelectionLength = 0;
-            while (this.findText(textToReplace, true, matchCase))
+            while (this.findTextWhole(textToReplace, true, matchCase, matchWord))
             {
-                replaceText(textToReplace, replaceWith, matchCase);
+                replaceText(textToReplace, replaceWith, matchCase, matchWord);
             }
         }
 
@@ -927,7 +1068,7 @@ namespace RTFPad
 
 
         /* Blocks Ctrl + i in tab to act as the tab key
-         * 
+         * In ReadOnly, a space sends a page down
          */
         private void rtb_KeyDown(object sender, KeyEventArgs e)
         {
@@ -936,6 +1077,29 @@ namespace RTFPad
             if (e.Modifiers == Keys.Control && e.KeyCode == Keys.I)
             {
                 e.SuppressKeyPress = true;
+            }
+            if (rtb.ReadOnly && e.KeyCode == Keys.Space) 
+            { 
+                SendKeys.Send("{PGDN}");
+                e.SuppressKeyPress = true;
+            }
+        }
+
+
+        private void showStdErr(Exception exception)
+        {
+            MessageBox.Show("Error: " + exception.ToString(), "RTFPad");
+        }
+
+        private void timerAutoloadFile_Tick(object sender, EventArgs e)
+        {
+            string chkFileName = strExeFilePath.Replace(".exe", "_") + autoLoadFile;
+            if (!File.Exists(chkFileName)) { return; }
+            string[] loadFileList = File.ReadAllLines(chkFileName);
+            File.Delete(chkFileName);
+            foreach (string loadFile in loadFileList)
+            {
+                if (loadFile.Length > 2) { LoadFileFromParm(loadFile); }
             }
         }
         #endregion
@@ -948,7 +1112,7 @@ namespace RTFPad
             if (rtb.TextLength == 0)
             {
                 this.menuEditFind.Enabled = false;
-                this.toolStripFind.Enabled = false;
+                //this.toolStripFind.Enabled = false;
                 this.menuEditFindNext.Enabled = false;
                 this.menuEditReplace.Enabled = false;
                 this.menuEditSelectAll.Enabled = false;
@@ -957,7 +1121,7 @@ namespace RTFPad
             else
             {
                 this.menuEditFind.Enabled = true;
-                this.toolStripFind.Enabled = true;
+                //this.toolStripFind.Enabled = true;
                 this.menuEditFindNext.Enabled = true;
                 this.menuEditReplace.Enabled = true;
                 this.menuEditSelectAll.Enabled = true;
@@ -995,7 +1159,7 @@ namespace RTFPad
                 if (rtb.TextLength == 0)
                 {
                     this.menuEditFind.Enabled      = false;
-                    this.toolStripFind.Enabled     = false;
+                    //this.toolStripFind.Enabled     = false;
                     this.menuEditFindNext.Enabled  = false;
                     this.menuEditReplace.Enabled   = false;
                     this.menuEditSelectAll.Enabled = false;
@@ -1004,7 +1168,7 @@ namespace RTFPad
                 else
                 {
                     this.menuEditFind.Enabled      = true;
-                    this.toolStripFind.Enabled     = true;
+                    //this.toolStripFind.Enabled     = true;
                     this.menuEditFindNext.Enabled  = true;
                     this.menuEditReplace.Enabled   = true;
                     this.menuEditSelectAll.Enabled = true;
@@ -1036,17 +1200,17 @@ namespace RTFPad
                 {
                     this.menuEditClear.Enabled = false;
                     this.menuEditCut.Enabled   = false;
-                    this.toolStripCut.Enabled  = false;
+                    //this.toolStripCut.Enabled  = false;
                     this.menuEditCopy.Enabled  = false;
-                    this.toolStripCopy.Enabled = false;
+                    //this.toolStripCopy.Enabled = false;
                 }
                 else
                 {
                     this.menuEditClear.Enabled = true;
                     this.menuEditCut.Enabled   = true;
-                    this.toolStripCut.Enabled  = true;
+                    //this.toolStripCut.Enabled  = true;
                     this.menuEditCopy.Enabled  = true;
-                    this.toolStripCopy.Enabled = true;
+                    //this.toolStripCopy.Enabled = true;
                 }
                 if (rtb.SelectionFont.Bold) this.toolStripBold.Checked = true;
                 else this.toolStripBold.Checked = false;
@@ -1085,7 +1249,7 @@ namespace RTFPad
                 this.Text = "RTFPad - " + this.tabControl.SelectedTab.Text;
                 this.rtb_SelectionChanged(sender, e);
                 this.menuEditPaste.Enabled          = true;
-                this.toolStripPaste.Enabled         = true;
+                //this.toolStripPaste.Enabled         = true;
                 this.menuFilePrint.Enabled          = true;
                 this.toolStripPrint.Enabled         = true;
                 this.menuFilePrintPreview.Enabled   = true;
@@ -1100,7 +1264,7 @@ namespace RTFPad
                 if (this.fileTypeInTab[this.tabControl.SelectedTab.Text] == 2)
                 {
                     this.toolStripCBoxFont.Visible      = false;
-                    this.toolStripCBoxFontSize.Visible  = false;
+                    //this.toolStripCBoxFontSize.Visible  = false;
                     this.toolStripFontColor.Visible     = false;
                     this.toolStripBold.Visible          = false;
                     this.toolStripItalic.Visible        = false;
@@ -1121,7 +1285,7 @@ namespace RTFPad
             else
             {
                 this.menuEditFind.Enabled           = false;
-                this.toolStripFind.Enabled          = false;
+                //this.toolStripFind.Enabled          = false;
                 this.menuEditFindNext.Enabled       = false;
                 this.menuEditReplace.Enabled        = false;
                 this.menuEditSelectAll.Enabled      = false;
@@ -1131,11 +1295,11 @@ namespace RTFPad
                 this.toolStripRedo.Enabled          = false;
                 this.menuEditClear.Enabled          = false;
                 this.menuEditCut.Enabled            = false;
-                this.toolStripCut.Enabled           = false;
+                //this.toolStripCut.Enabled           = false;
                 this.menuEditCopy.Enabled           = false;
-                this.toolStripCopy.Enabled          = false;
+                //this.toolStripCopy.Enabled          = false;
                 this.menuEditPaste.Enabled          = false;
-                this.toolStripPaste.Enabled         = false;
+                //this.toolStripPaste.Enabled         = false;
                 this.menuFilePrint.Enabled          = false;
                 this.toolStripPrint.Enabled         = false;
                 this.menuFilePrintPreview.Enabled   = false;
@@ -1146,6 +1310,14 @@ namespace RTFPad
                 this.toolStripAlignCenter.Checked   = false;
                 this.toolStripAlignRight.Checked    = false;
             }
+
+            try
+            {
+                if (this.tabIsReadOnly[this.tabControl.SelectedTab.Text] == true)
+                { btnEditDocument.Visible = true; }
+                else { btnEditDocument.Visible = false; }
+            }
+            catch { }
         }
 
         /* Checks if the mouse is over the tab header
@@ -1168,18 +1340,70 @@ namespace RTFPad
             }
         }
 
-        /* Event which watches for the change in form size
-         * Used for styling the Tool Strip so it's displayed in two rows when possible
-         */
-        private void rtfPadForm_SizeChanged(object sender, EventArgs e)
+        private void rtfPadForm_Resize(object sender, EventArgs e)
         {
-            if (this.WindowState == FormWindowState.Maximized || this.Size.Width > 900 )
+            this.toolStrip.ImageScalingSize = new Size(16, 16);
+        }
+
+        private void btnToBottom_Click(object sender, EventArgs e)
+        {
+            RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+            rtb.BringToFront();
+            rtb.Focus();
+            SendKeys.Send("^({END})");
+            btnToBottom.Visible = false;
+        }
+
+        private void btnEditDocument_Click(object sender, EventArgs e)
+        {
+            btnEditDocument.Visible = false;
+            string currentTabKey = this.tabControl.SelectedTab.Text;
+            string wholeFileName = this.fileNameInTab[currentTabKey];
+            recentlyEdited = wholeFileName + ";" + recentlyEdited;
+            RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+            rtb.ReadOnly = false;
+            this.tabIsReadOnly[this.tabControl.SelectedTab.Text] = false;
+            this.menuFileSave.Enabled = true;
+            this.menuFileSaveAs.Enabled = true;
+            this.toolStripSave.Enabled = true;
+            this.tabControl.SelectedTab.BackColor = SystemColors.Control;
+            string backupFileName = wholeFileName.Substring(0, wholeFileName.LastIndexOf('.')) + ".bak";
+            File.Copy(wholeFileName, backupFileName, true);
+        }
+
+        private void rtfPadForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (this.tabControl.TabCount <= 0) return;
+
+            int maxEdLen = recentlyEdited.Length;
+            if (maxEdLen > 500) { maxEdLen = 500; }
+            File.WriteAllText(strExeFilePath.Replace(".exe", "_") + recentEditPath, 
+                recentlyEdited.Substring(0, maxEdLen));
+
+            string MRUhistoryFileName = strExeFilePath.Replace(".exe", "_") + MRUhistoryFile;
+
+            for (int i = this.tabControl.TabCount; i > 0; --i)
             {
-                toolStripSeparator5.Margin = new System.Windows.Forms.Padding(0, 0, 0, 0);
-            }
-            else
-            {
-                toolStripSeparator5.Margin = new System.Windows.Forms.Padding(0, 0, 500, 0);
+                this.tabControl.SelectedIndex = i;
+                string tabKey = this.tabControl.SelectedTab.Text;
+                File.AppendAllText(MRUhistoryFileName, tabKey + ";" + this.fileNameInTab[tabKey] + "\n\r");
+
+                RichTextBox rtb = (RichTextBox)this.tabControl.TabPages[i - 1].Controls[0];
+                if (rtb.Text != rtb.Tag.ToString())
+                {
+                    DialogResult result = MessageBox.Show("Do you wish to save changes to " + this.tabControl.SelectedTab.Text + " ?",
+                                     "RTFPad", MessageBoxButtons.YesNoCancel);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        menuFileSave_Click(sender, e);
+                    }
+                    else if (result == DialogResult.Cancel)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
             }
         }
         #endregion
@@ -1386,5 +1610,13 @@ namespace RTFPad
             this.statusStripInfoLabel.Text = "";
         }
         #endregion
+
+        private void menuRecentLoad_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem MRUtoOpen = (ToolStripMenuItem)sender;
+            string shortFileName = MRUtoOpen.Text;
+            string MRUfileToOpen = MRUtoOpen.Tag.ToString();
+            OpenFileNamed(sender, null, shortFileName, MRUfileToOpen);
+        }
     }
 }

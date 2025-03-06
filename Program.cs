@@ -6,15 +6,15 @@ namespace RTFPad
 {
     static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new rtfPadForm());
+            string startDoc = "";
+            if (args.Length > 0) { startDoc = args[0]; }
+            if (startDoc == "") { Application.Run(new rtfPadForm()); }
+            else { Application.Run(new rtfPadForm(startDoc)); }
         }
     }
 }

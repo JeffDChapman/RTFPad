@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 
 namespace RTFPad
@@ -39,9 +34,10 @@ namespace RTFPad
         private void buttonFindNext_Click(object sender, EventArgs e)
         {
             if (((rtfPadForm)this.Owner).tabControl.TabCount <= 0) return;
-            if (((rtfPadForm)this.Owner).findText(this.textBoxFind.Text,
-                                                        true,
-                                                        this.checkBoxMatchCase.Checked) == false)
+            if (((rtfPadForm)this.Owner).findTextWhole(this.textBoxFind.Text,
+                                                       true,
+                                                       this.checkBoxMatchCase.Checked,
+                                                       this.checkBoxWholeWord.Checked) == false)
             {
                 MessageBox.Show("Can't find \'" + this.textBoxFind.Text + "'\'", "Find",
                                 MessageBoxButtons.OK,
@@ -55,7 +51,8 @@ namespace RTFPad
             if (((rtfPadForm)this.Owner).tabControl.TabCount <= 0) return;
             if (((rtfPadForm)this.Owner).replaceText(this.textBoxFind.Text, 
                                                       this.textBoxReplace.Text,
-                                                      this.checkBoxMatchCase.Checked) == false)
+                                                      this.checkBoxMatchCase.Checked,
+                                                      this.checkBoxWholeWord.Checked) == false)
            {
                MessageBox.Show("Can't find \'" + this.textBoxFind.Text + "'\'", "Find",
                MessageBoxButtons.OK,
@@ -67,7 +64,8 @@ namespace RTFPad
         private void buttonReplaceAll_Click(object sender, EventArgs e)
         {
             if (((rtfPadForm)this.Owner).tabControl.TabCount <= 0) return;
-            ((rtfPadForm)this.Owner).replaceAllInText(this.textBoxFind.Text, this.textBoxReplace.Text, this.checkBoxMatchCase.Checked);
+            ((rtfPadForm)this.Owner).replaceAllInText(this.textBoxFind.Text, this.textBoxReplace.Text, 
+                this.checkBoxMatchCase.Checked, this.checkBoxWholeWord.Checked);
         }
 
     }
