@@ -29,6 +29,7 @@ namespace RTFPad
         private string recentEditPath = @"recentEdits.txt";
         private string autoLoadFile = @"autoload.txt";
         private string MRUhistoryFile = @"mruHistory.txt";
+        private RichTextBox spellingRtb;
         #endregion
 
         #region constructor
@@ -1371,6 +1372,14 @@ namespace RTFPad
             File.Copy(wholeFileName, backupFileName, true);
         }
 
+        private void menuRecentLoad_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem MRUtoOpen = (ToolStripMenuItem)sender;
+            string shortFileName = MRUtoOpen.Text;
+            string MRUfileToOpen = MRUtoOpen.Tag.ToString();
+            OpenFileNamed(sender, null, shortFileName, MRUfileToOpen);
+        }
+
         private void rtfPadForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (this.tabControl.TabCount <= 0) return;
@@ -1611,12 +1620,54 @@ namespace RTFPad
         }
         #endregion
 
-        private void menuRecentLoad_Click(object sender, EventArgs e)
+        #region Spell Check
+
+        private void menuSpellCheck_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem MRUtoOpen = (ToolStripMenuItem)sender;
-            string shortFileName = MRUtoOpen.Text;
-            string MRUfileToOpen = MRUtoOpen.Tag.ToString();
-            OpenFileNamed(sender, null, shortFileName, MRUfileToOpen);
+            spellingRtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
+            this.spelling.Text = spellingRtb.Text;
+            this.spelling.SpellCheck();
         }
+
+        private void spelling_DeletedWord(object sender, RTFPad.SpellingEventArgs e)
+        {
+            int start = this.spellingRtb.SelectionStart;
+            int length = this.spellingRtb.SelectionLength;
+
+            this.spellingRtb.Select(e.TextIndex, e.Word.Length);
+            this.spellingRtb.SelectedText = "";
+
+            if (start > this.spellingRtb.Text.Length)
+                start = this.spellingRtb.Text.Length;
+
+            if ((start + length) > this.spellingRtb.Text.Length)
+                length = 0;
+
+            this.spellingRtb.Select(start, length);
+        }
+
+        private void spelling_ReplacedWord(object sender, RTFPad.ReplaceWordEventArgs e)
+        {
+            int start = this.spellingRtb.SelectionStart;
+            int length = this.spellingRtb.SelectionLength;
+
+            this.spellingRtb.Select(e.TextIndex, e.Word.Length);
+            this.spellingRtb.SelectedText = e.ReplacementWord;
+
+            if (start > this.spellingRtb.Text.Length)
+                start = this.spellingRtb.Text.Length;
+
+            if ((start + length) > this.spellingRtb.Text.Length)
+                length = 0;
+
+            this.spellingRtb.Select(start, length);
+        }
+
+        private void spelling_EndOfText(object sender, System.EventArgs e)
+        {
+            //MessageBox.Show("Spell Check Completed");
+        }
+        #endregion
+
     }
 }
