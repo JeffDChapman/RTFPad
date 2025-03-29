@@ -5,7 +5,7 @@ namespace RTFPad
         /// <summary>
         /// Required designer variable.
         /// </summary>
-        private System.ComponentModel.IContainer components = null;
+        private System.ComponentModel.IContainer rtfComponents = null;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -13,9 +13,9 @@ namespace RTFPad
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && (rtfComponents != null))
             {
-                components.Dispose();
+                rtfComponents.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -28,7 +28,7 @@ namespace RTFPad
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.rtfComponents = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(rtfPadForm));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.menuFile = new System.Windows.Forms.ToolStripMenuItem();
@@ -89,7 +89,7 @@ namespace RTFPad
             this.tabControl = new System.Windows.Forms.TabControl();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.statusStripInfoLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tabMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tabMenu = new System.Windows.Forms.ContextMenuStrip(this.rtfComponents);
             this.contextMenuNew = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuClose = new System.Windows.Forms.ToolStripMenuItem();
             this.dialogPrintPreview = new System.Windows.Forms.PrintPreviewDialog();
@@ -99,7 +99,9 @@ namespace RTFPad
             this.dialogColor = new System.Windows.Forms.ColorDialog();
             this.btnToBottom = new System.Windows.Forms.Button();
             this.btnEditDocument = new System.Windows.Forms.Button();
-            this.timerAutoloadFile = new System.Windows.Forms.Timer(this.components);
+            this.timerAutoloadFile = new System.Windows.Forms.Timer(this.rtfComponents);
+            this.menuSpellCheck = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.statusStrip.SuspendLayout();
@@ -178,7 +180,7 @@ namespace RTFPad
             // menuRecentLoad
             // 
             this.menuRecentLoad.Name = "menuRecentLoad";
-            this.menuRecentLoad.Size = new System.Drawing.Size(270, 34);
+            this.menuRecentLoad.Size = new System.Drawing.Size(191, 34);
             this.menuRecentLoad.Text = "(filename)";
             this.menuRecentLoad.Click += new System.EventHandler(this.menuRecentLoad_Click);
             // 
@@ -249,7 +251,9 @@ namespace RTFPad
             this.toolStripSeparator7,
             this.menuEditFind,
             this.menuEditFindNext,
-            this.menuEditReplace});
+            this.menuEditReplace,
+            this.toolStripSeparator3,
+            this.menuSpellCheck});
             this.menuEdit.Name = "menuEdit";
             this.menuEdit.Size = new System.Drawing.Size(58, 29);
             this.menuEdit.Text = "&Edit";
@@ -258,7 +262,7 @@ namespace RTFPad
             // 
             this.menuEditUndo.Name = "menuEditUndo";
             this.menuEditUndo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-            this.menuEditUndo.Size = new System.Drawing.Size(248, 34);
+            this.menuEditUndo.Size = new System.Drawing.Size(270, 34);
             this.menuEditUndo.Text = "&Undo";
             this.menuEditUndo.Click += new System.EventHandler(this.menuEditUndo_Click);
             // 
@@ -266,20 +270,20 @@ namespace RTFPad
             // 
             this.menuEditRedo.Name = "menuEditRedo";
             this.menuEditRedo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
-            this.menuEditRedo.Size = new System.Drawing.Size(248, 34);
+            this.menuEditRedo.Size = new System.Drawing.Size(270, 34);
             this.menuEditRedo.Text = "&Redo";
             this.menuEditRedo.Click += new System.EventHandler(this.menuEditRedo_Click);
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(245, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(267, 6);
             // 
             // menuEditCut
             // 
             this.menuEditCut.Name = "menuEditCut";
             this.menuEditCut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.menuEditCut.Size = new System.Drawing.Size(248, 34);
+            this.menuEditCut.Size = new System.Drawing.Size(270, 34);
             this.menuEditCut.Text = "Cu&t";
             this.menuEditCut.Click += new System.EventHandler(this.menuEditCut_Click);
             // 
@@ -287,7 +291,7 @@ namespace RTFPad
             // 
             this.menuEditCopy.Name = "menuEditCopy";
             this.menuEditCopy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.menuEditCopy.Size = new System.Drawing.Size(248, 34);
+            this.menuEditCopy.Size = new System.Drawing.Size(270, 34);
             this.menuEditCopy.Text = "&Copy";
             this.menuEditCopy.Click += new System.EventHandler(this.menuEditCopy_Click);
             // 
@@ -295,7 +299,7 @@ namespace RTFPad
             // 
             this.menuEditPaste.Name = "menuEditPaste";
             this.menuEditPaste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.menuEditPaste.Size = new System.Drawing.Size(248, 34);
+            this.menuEditPaste.Size = new System.Drawing.Size(270, 34);
             this.menuEditPaste.Text = "&Paste";
             this.menuEditPaste.Click += new System.EventHandler(this.menuEditPaste_Click);
             // 
@@ -303,7 +307,7 @@ namespace RTFPad
             // 
             this.menuEditClear.Name = "menuEditClear";
             this.menuEditClear.ShortcutKeys = System.Windows.Forms.Keys.Delete;
-            this.menuEditClear.Size = new System.Drawing.Size(248, 34);
+            this.menuEditClear.Size = new System.Drawing.Size(270, 34);
             this.menuEditClear.Text = "Cle&ar";
             this.menuEditClear.Click += new System.EventHandler(this.menuEditClear_Click);
             // 
@@ -311,20 +315,20 @@ namespace RTFPad
             // 
             this.menuEditSelectAll.Name = "menuEditSelectAll";
             this.menuEditSelectAll.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
-            this.menuEditSelectAll.Size = new System.Drawing.Size(248, 34);
+            this.menuEditSelectAll.Size = new System.Drawing.Size(270, 34);
             this.menuEditSelectAll.Text = "Select A&ll";
             this.menuEditSelectAll.Click += new System.EventHandler(this.menuEditSelectAll_Click);
             // 
             // toolStripSeparator7
             // 
             this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(245, 6);
+            this.toolStripSeparator7.Size = new System.Drawing.Size(267, 6);
             // 
             // menuEditFind
             // 
             this.menuEditFind.Name = "menuEditFind";
             this.menuEditFind.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F)));
-            this.menuEditFind.Size = new System.Drawing.Size(248, 34);
+            this.menuEditFind.Size = new System.Drawing.Size(270, 34);
             this.menuEditFind.Text = "&Find";
             this.menuEditFind.Click += new System.EventHandler(this.menuEditFind_Click);
             // 
@@ -332,7 +336,7 @@ namespace RTFPad
             // 
             this.menuEditFindNext.Name = "menuEditFindNext";
             this.menuEditFindNext.ShortcutKeys = System.Windows.Forms.Keys.F3;
-            this.menuEditFindNext.Size = new System.Drawing.Size(248, 34);
+            this.menuEditFindNext.Size = new System.Drawing.Size(270, 34);
             this.menuEditFindNext.Text = "Find &Next";
             this.menuEditFindNext.Click += new System.EventHandler(this.menuEditFindNext_Click);
             // 
@@ -340,7 +344,7 @@ namespace RTFPad
             // 
             this.menuEditReplace.Name = "menuEditReplace";
             this.menuEditReplace.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.H)));
-            this.menuEditReplace.Size = new System.Drawing.Size(248, 34);
+            this.menuEditReplace.Size = new System.Drawing.Size(270, 34);
             this.menuEditReplace.Text = "&Replace";
             this.menuEditReplace.Click += new System.EventHandler(this.menuEditReplace_Click);
             // 
@@ -807,6 +811,27 @@ namespace RTFPad
             this.timerAutoloadFile.Interval = 1000;
             this.timerAutoloadFile.Tick += new System.EventHandler(this.timerAutoloadFile_Tick);
             // 
+            // menuSpellCheck
+            // 
+            this.menuSpellCheck.Name = "menuSpellCheck";
+            this.menuSpellCheck.Size = new System.Drawing.Size(270, 34);
+            this.menuSpellCheck.Text = "Spell Check";
+            this.menuSpellCheck.Click += new System.EventHandler(this.menuSpellCheck_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(267, 6);
+            //
+            // spelling
+            //
+            this.spelling = new RTFPad.Spelling(rtfComponents);
+            this.wordDictionary = new RTFPad.Dictionary.WordDictionary(rtfComponents);
+            this.spelling.Dictionary = this.wordDictionary;
+            this.spelling.ReplacedWord += new RTFPad.Spelling.ReplacedWordEventHandler(this.spelling_ReplacedWord);
+            this.spelling.EndOfText += new RTFPad.Spelling.EndOfTextEventHandler(this.spelling_EndOfText);
+            this.spelling.DeletedWord += new RTFPad.Spelling.DeletedWordEventHandler(this.spelling_DeletedWord);
+            // 
             // rtfPadForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -837,6 +862,7 @@ namespace RTFPad
             this.tabMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
+
 
         }
 
@@ -911,6 +937,10 @@ namespace RTFPad
         private System.Windows.Forms.Timer timerAutoloadFile;
         private System.Windows.Forms.ToolStripMenuItem menuRecent;
         private System.Windows.Forms.ToolStripMenuItem menuRecentLoad;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem menuSpellCheck;
+        private RTFPad.Spelling spelling;
+        private RTFPad.Dictionary.WordDictionary wordDictionary;
     }
 }
 

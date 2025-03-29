@@ -141,6 +141,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetSpell\NetSpell.SpellChecker.csproj">
+      <Project>{a426ee0b-e52e-4d74-af24-06797142d7b2}</Project>
+      <Name>NetSpell.SpellChecker</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
