@@ -1,10 +1,11 @@
+using Microsoft.Win32;
+using PrintPreviewRichTextBox;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Forms;
 using System.IO;
-using PrintPreviewRichTextBox;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace RTFPad
 {
@@ -68,6 +69,7 @@ namespace RTFPad
 
         private void SetupTheForm()
         {
+            RestoreCoordinates();
             SetupTheFonts();
             foreach (ToolStripDropDownItem entry in this.toolStripFontColor.DropDownItems)
             {
@@ -85,8 +87,24 @@ namespace RTFPad
             this.rtb_SelectionChanged(this, new EventArgs());
             this.toolStripCBoxFont.Text = "Calibri";
             this.toolStripCBoxFontSize.Text = "20";
-            this.Height = 750;
             SetupMRUlist();
+        }
+
+        private void RestoreCoordinates()
+        {
+            RegistryKey ThisUser = Registry.CurrentUser;
+            try
+            {
+                RegistryKey ScreenLoc = ThisUser.OpenSubKey("Software\\RTFpad\\ScreenLocation", true);
+                Top = Convert.ToInt32(ScreenLoc.GetValue("Top", 1));
+                Left = Convert.ToInt32(ScreenLoc.GetValue("Left", 1));
+                RegistryKey ScreenSize = ThisUser.OpenSubKey("Software\\RTFpad\\ScreenSize", true);
+                Height = Convert.ToInt32(ScreenSize.GetValue("Height", 532));
+                if (Height < 300) { Height = 300; }
+                Width = Convert.ToInt32(ScreenSize.GetValue("Width", 728));
+                if (Width < 300) { Width = 300; }
+            }
+            catch { }
         }
 
         private void SetupMRUlist()
@@ -237,9 +255,7 @@ namespace RTFPad
                 rtb.ReadOnly = true;
                 this.tabIsReadOnly[this.tabControl.SelectedTab.Text] = true;
                 this.tabControl.SelectedTab.BackColor = Color.Blue;
-                this.menuFileSave.Enabled = false;
-                this.menuFileSaveAs.Enabled = false;
-                this.toolStripSave.Enabled = false;
+                SetMenuForReadonly();
             }
             else
             {
@@ -248,6 +264,15 @@ namespace RTFPad
                 this.tabIsReadOnly[this.tabControl.SelectedTab.Text] = false;
             }
             if (rtb.TextLength > 1000) { btnToBottom.Visible = true; }
+        }
+
+        private void SetMenuForReadonly()
+        {
+            this.menuFileSave.Enabled = false;
+            this.menuFileSaveAs.Enabled = false;
+            this.toolStripSave.Enabled = false;
+            this.menuEditReplace.Enabled = false;
+            this.menuSpellCheck.Enabled = false;
         }
 
         private void ClearTabInfo(string tabName)
@@ -1250,7 +1275,6 @@ namespace RTFPad
                 this.Text = "RTFPad - " + this.tabControl.SelectedTab.Text;
                 this.rtb_SelectionChanged(sender, e);
                 this.menuEditPaste.Enabled          = true;
-                //this.toolStripPaste.Enabled         = true;
                 this.menuFilePrint.Enabled          = true;
                 this.toolStripPrint.Enabled         = true;
                 this.menuFilePrintPreview.Enabled   = true;
@@ -1265,7 +1289,6 @@ namespace RTFPad
                 if (this.fileTypeInTab[this.tabControl.SelectedTab.Text] == 2)
                 {
                     this.toolStripCBoxFont.Visible      = false;
-                    //this.toolStripCBoxFontSize.Visible  = false;
                     this.toolStripFontColor.Visible     = false;
                     this.toolStripBold.Visible          = false;
                     this.toolStripItalic.Visible        = false;
@@ -1286,7 +1309,6 @@ namespace RTFPad
             else
             {
                 this.menuEditFind.Enabled           = false;
-                //this.toolStripFind.Enabled          = false;
                 this.menuEditFindNext.Enabled       = false;
                 this.menuEditReplace.Enabled        = false;
                 this.menuEditSelectAll.Enabled      = false;
@@ -1296,11 +1318,8 @@ namespace RTFPad
                 this.toolStripRedo.Enabled          = false;
                 this.menuEditClear.Enabled          = false;
                 this.menuEditCut.Enabled            = false;
-                //this.toolStripCut.Enabled           = false;
                 this.menuEditCopy.Enabled           = false;
-                //this.toolStripCopy.Enabled          = false;
                 this.menuEditPaste.Enabled          = false;
-                //this.toolStripPaste.Enabled         = false;
                 this.menuFilePrint.Enabled          = false;
                 this.toolStripPrint.Enabled         = false;
                 this.menuFilePrintPreview.Enabled   = false;
@@ -1315,8 +1334,15 @@ namespace RTFPad
             try
             {
                 if (this.tabIsReadOnly[this.tabControl.SelectedTab.Text] == true)
-                { btnEditDocument.Visible = true; }
-                else { btnEditDocument.Visible = false; }
+                { 
+                    btnEditDocument.Visible = true;
+                    SetMenuForReadonly();
+                }
+                else 
+                { 
+                    btnEditDocument.Visible = false;
+                    SetMenuForEditing();
+                }
             }
             catch { }
         }
@@ -1364,12 +1390,19 @@ namespace RTFPad
             RichTextBox rtb = (RichTextBox)this.tabControl.SelectedTab.Controls[0];
             rtb.ReadOnly = false;
             this.tabIsReadOnly[this.tabControl.SelectedTab.Text] = false;
-            this.menuFileSave.Enabled = true;
-            this.menuFileSaveAs.Enabled = true;
-            this.toolStripSave.Enabled = true;
+            SetMenuForEditing();
             this.tabControl.SelectedTab.BackColor = SystemColors.Control;
             string backupFileName = wholeFileName.Substring(0, wholeFileName.LastIndexOf('.')) + ".bak";
             File.Copy(wholeFileName, backupFileName, true);
+        }
+
+        private void SetMenuForEditing()
+        {
+            this.menuFileSave.Enabled = true;
+            this.menuFileSaveAs.Enabled = true;
+            this.toolStripSave.Enabled = true;
+            this.menuEditReplace.Enabled = true;
+            this.menuSpellCheck.Enabled = true;
         }
 
         private void menuRecentLoad_Click(object sender, EventArgs e)
@@ -1388,6 +1421,21 @@ namespace RTFPad
             if (maxEdLen > 500) { maxEdLen = 500; }
             File.WriteAllText(strExeFilePath.Replace(".exe", "_") + recentEditPath, 
                 recentlyEdited.Substring(0, maxEdLen));
+
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.Opacity = 0;
+                this.WindowState = FormWindowState.Normal;
+                Application.DoEvents();
+            }
+
+            RegistryKey ThisUser = Registry.CurrentUser;
+            RegistryKey ScreenLoc = ThisUser.CreateSubKey("Software\\RTFpad\\ScreenLocation");
+            ScreenLoc.SetValue("Top", this.Top);
+            ScreenLoc.SetValue("Left", this.Left);
+            RegistryKey ScreenSize = ThisUser.CreateSubKey("Software\\RTFpad\\ScreenSize");
+            ScreenSize.SetValue("Height", this.Height);
+            ScreenSize.SetValue("Width", this.Width);
 
             string MRUhistoryFileName = strExeFilePath.Replace(".exe", "_") + MRUhistoryFile;
 
